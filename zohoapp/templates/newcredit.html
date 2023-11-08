@@ -117,15 +117,16 @@
           <label >Customer Name *</label>
         </div>
         <div class="col-md-6">
-          <select name="cx_name" id="customer_sel" class="form-control bg-light text-dark">
-            <option value="">select customer</option>
-            
-            {% for cust in c %}
-            <option value="{{cust.id}}" data-email="{{ cust.customerEmail }}" data-gst="{{ cust.GSTTreatment }}" data-gstin="{{cust.GSTIN}}" data-pos="{{cust.placeofsupply}}" data-billing_address="{{ cust.Address1 }} ,{{cust.state}}"
-            >{{cust.customerName}}</option>
-            {% endfor %}
-         
-          </select>
+          <div class="position-relative">
+            <select name="cx_name" id="customer_sel" class="form-control bg-light text-dark" onclick="showOptions()" oninput="filterCustomers()">
+                <option value="">Search customer</option> <!-- Initial search option -->
+                {% for cust in c %}
+                    <option value="{{cust.id}}" data-email="{{ cust.customerEmail }}" data-gst="{{ cust.GSTTreatment }}" data-gstin="{{cust.GSTIN}}" data-pos="{{cust.placeofsupply}}" data-billing_address="{{ cust.Address1 }} ,{{cust.state}}">{{cust.customerName}}</option>
+                {% endfor %}
+            </select>
+        
+        </div>
+        
           <a href="" data-toggle="modal" data-target="#newcustomer">+ Add New Customer</a>
         </div>
       </div>
@@ -137,15 +138,29 @@
           <input type="text" class="form-control bg-light text-dark" id="email_input" name="email" disabled>
         </div>
       </div>
-      
-      <div class="row mt-2" id="pos_row" style="display:none;">
-        <div class="col-md-3">
-          <label for="pos">Place of Supply</label>
-        </div>
-        <div class="col-md-6">
-          <input type="text" class="form-control bg-light text-dark" id="pos_input" name="place_of_supply" disabled>
-        </div>
-      </div>
+      <script>
+        function showOptions() {
+            document.getElementById("customerSearch").style.display = "block";
+        }
+    
+        function filterCustomers() {
+            const input = document.getElementById("customerSearch");
+            const filter = input.value.toUpperCase();
+            const select = document.getElementById("customer_sel");
+            const options = select.getElementsByTagName("option");
+    
+            for (let i = 0; i < options.length; i++) {
+                const txtValue = options[i].text || options[i].textContent;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    options[i].style.display = "";
+                } else {
+                    options[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+    
+     
       
       <div class="row mt-2" id="gst_row" style="display:none;">
         <div class="col-md-3">
@@ -171,6 +186,14 @@
         </div>
         <div class="col-md-6">
           <input type="text" class="form-control bg-light text-dark" id="billing_address_input" name="billing_address" rows="2"   disabled>
+        </div>
+      </div>
+      <div class="row mt-2" id="pos_row" style="display:none;">
+        <div class="col-md-3">
+          <label for="pos">Place of Supply</label>
+        </div>
+        <div class="col-md-6">
+          <input type="text" class="form-control bg-light text-dark" id="pos_input" name="place_of_supply" disabled>
         </div>
       </div>
       
@@ -205,17 +228,121 @@
         </div>
       </div>
 
-      <div class="row mt-2" >
-          <div class="col-md-3">
+      <div class="row mt-2">
+        <div class="col-md-3">
             <label for="date1">Creditnote Date</label>
-          </div>
-          <div class="col-md-6">
+        </div>
+        <div class="col-md-6">
             <input type="date" class="form-control bg-light text-dark" id="date1" name="cr_date">
-          </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-md-3">
+        <label for="date2">Payment Method</label>
       </div>
+    <div class="col-md-6">
+      <div class="d-flex">
+        <select class="form-control bg-light text-dark my-select" id="pay_method" name="method">
+          <option value="" selected hidden>Select Payment Method</option>
+          <option value="cash">Cash</option>
+          <option value="cheque">Cheque</option>
+          <option value="upi">UPI</option>
+          {% for item in bank %}
+            <option value="{{item.name}}">{{item.name}}</option>
+          {% endfor %}
+        </select>
+      </div> 
+    </div>
+  </div>  
+
+  <div class="row mt-2" id="chequediv" style="display: none;">
+    <div class="col-md-3">
+      <label for="date2">Cheque ID</label>
+    </div>
+
+    <div class="col-md-6">
+        <input type="text" class="form-control text-black" name="cheque_id" id="cheque_id" placeholder="Enter Cheque ID">
+    </div>
+  </div>  
+
+  <div class="row mt-2" id="upidiv" style="display: none;">
+    <div class="col-md-3">
+      <label for="date2">UPI ID</label>
+    </div>
+
+    <div class="col-md-6">
+        <input type="text" class="form-control text-black" name="upi_id" id="upi_id" placeholder="Enter UPI ID">
+    </div>
+  </div>  
+
+  <div class="row mt-2" id="bnkdiv" style="display: none;">
+    <div class="col-md-3">
+      <label for="date2">Bank Account</label>
+    </div>
+
+    <div class="col-md-6">
+      <input type="text" class="form-control text-black" name="bnk_id" id="bnk_id" readonly>
+    </div>
+  </div>  
       <!-------------------------- new-----------------------------------------  -->
       <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
       <script>
+        $(document).ready(function() {
+          $("#pay_method").change(function() {
+            var x=$('#pay_method').val();
+            if(x==='cash'){
+              $('#chequediv').hide()
+              $('#bnkdiv').hide()
+              $('#upidiv').hide()
+              document.getElementById('cheque_id').value=null
+              document.getElementById('upi_id').value=null
+            }else if(x==='cheque'){
+              $('#chequediv').show()
+              $('#bnkdiv').hide()
+              $('#upidiv').hide()
+              document.getElementById('upi_id').value=null
+            }else if(x==='upi'){
+              $('#upidiv').show()
+              $('#bnkdiv').hide()
+              $('#chequediv').hide()
+              document.getElementById('cheque_id').value=null
+            }else{
+              $('#bnkdiv').show()
+              $('#chequediv').hide()
+              $('#upidiv').hide()
+              document.getElementById('cheque_id').value=null
+              document.getElementById('upi_id').value=null
+    
+              $.ajax({
+                  type: "GET",
+                  url: "{% url 'bankdata' %}",
+                  data: {
+                      id: x,
+                  },
+                  success: function (response) {
+                      data = response.bank
+                      document.getElementById('cheque_id').value=null
+                      document.getElementById('upi_id').value=null
+                      document.getElementById("bnk_id").value = data
+                  }
+              });
+            }
+          });
+        });
+    </script>
+      <script>
+        // Fetch the 'Creditnote Date' input field
+const creditnoteDateInput = document.getElementById('date1');
+
+// Function to update the date to the current day
+function updateCurrentDate() {
+    const today = new Date().toISOString().split('T')[0];
+    creditnoteDateInput.value = today;
+}
+
+// Update the date to the current day when the page loads
+updateCurrentDate();
+
         $(document).ready(function () {
           // Change event listener for the customer dropdown
           $('#customer_sel').change(function () {
@@ -301,7 +428,9 @@
             </td>
             <td style="width: 15%;" class='text-right'><input type='number' id='qty1'
                     class=' text-right form-control bg-light text-dark' name='quantity[]'
-                    value='0'>
+                    value='0' onchange="qtychange(this.id)">
+                    
+                <span class="text-warning">Available Stock : <span id="stock_data1" class="text-warning"></span></span>
             </td>
             <td style="width: 12%;" class='text-right text-dark'><input type='number' id='rate1'
                     class=' text-right discount bg-light text-dark form-control rate' name='rate[]'
@@ -470,9 +599,8 @@ $('#item_table').on('click', '.delete-row', function () {
               </tr>
               
               <tr>
-                  <td></td>
-                  <td></td>
-                  <td> </td>
+                 
+                 
               </tr>
               <tr>
                   <th>Total ( &#x20B9; )</th>
@@ -480,6 +608,23 @@ $('#item_table').on('click', '.delete-row', function () {
                   <th><input type="number" id="grandtotal" name="t_total" step="any" value="0.00" 
                           class="form-control bg-transparent border-0 text-right grandtotal  text-white"></th>
               </tr>
+              <!-- <div class="col-sm-12 mt-4" > -->
+                <table class=" table  text-white" style="background-color: rgba(58, 57, 57, 0.8);">
+                  <tr>
+                      <td>Advance Paid</td>
+                      <td></td>
+                      <td><input type="number" id="advance" name="advance" step="any" value="0.00"
+                                 class="form-control bg-transparent border-0 text-right advance text-white" ></td>
+                  </tr>
+                  <tr>
+                      <td>Balance</td>
+                      <td></td>
+                      <td>
+                        <input type="number" id='balance' name="balance" step="any" value="0.00"
+                               class="form-control bg-transparent border-0 text-right balance  text-white"  readonly>
+                        <div style="color: red; display: none;" id="advancediv">Advance is greater than Total</div>
+                      </td>
+                  </tr>
           </table>
       </div>
   </div>
@@ -1565,6 +1710,19 @@ $('#item_table').on('click', '.delete-row', function () {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script>
+
+  function qtychange(id_str){
+    id= id_str.split("item")[1]
+    var qty = $(`#qty${id}`).val();
+    var avl = document.getElementById(`stock_data${id}`).innerHTML;
+    if(parseInt(qty)>parseInt(avl)){
+      alert("Entered quantity greater than available quantity");  
+      location.reload();
+    }
+  }     
+</script>
 
 <script>
 
