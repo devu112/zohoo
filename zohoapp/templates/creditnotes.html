@@ -161,15 +161,15 @@
                 <div class="col-md-4">
                     <div class="input-group">
                         <input type="text" name="usr_in" id="search" class="form-control text-dark bg-light"
-                            placeholder="Search here..." autocomplete="off" oninput="searchTable()">
+                            placeholder="Search here..." autocomplete="off" oninput="searchTable()" >
                         <div class="input-group-append">.
-                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-sort-amount-up"></i> Sort
+                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="dropdown" style="background-color: darkorange; color: black;">
+                                <i class="fas fa-sort-amount-up" style="background-color: darkorange; color:black ;"></i> Sort
                             </button>
-                            <div class="dropdown-menu" aria-labelledby="sortDropdownMenu">
+                            <div class="dropdown-menu" aria-labelledby="sortDropdownMenu" style="background-color: darkorange;">
                                 <a class="dropdown-item" href="#" onclick="sortTable(2)">All</a>
                                 <a class="dropdown-item" href="#" onclick="sortTable(3)">Creditnote No</a>
-                                <a class="dropdown-item" href="#" onclick="sortTable(4)">Amount</a>
+                                <a class="dropdown-item" href="#" onclick="sortTable(4)">Customer name</a>
                             </div>
                         </div>
                     </div>
@@ -177,16 +177,16 @@
                 <div class="col-md-5"></div>
                 <div class="col-md-3">
                     <a class="btn  btn-outline-warning text-center px-3 py-2" data-bs-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false" role="button">
+                        aria-haspopup="true" aria-expanded="false" role="button" style="background-color: darkorange; color: black;">
                         <i class="fa fa-filter mx-3"></i>
                     </a>
-                    <div class="dropdown-menu">
+                    <div class="dropdown-menu" style="background-color: darkorange; color: black;">
                         <a class="dropdown-item" href="#" onclick="filterTable('all')">All</a>
                         <a class="dropdown-item" href="#" onclick="filterTable('active')">Active</a>
                         <a class="dropdown-item" href="#" onclick="filterTable('inactive')">Inactive</a>
                     </div>
 
-                    <a href="{% url 'newcredit' %}" class="btn fa fa-plus text-right px-3 py-2" role="button">
+                    <a href="{% url 'newcredit' %}" class="btn fa fa-plus text-right px-3 py-2" role="button" style="background-color: darkorange; color: black;">
                         <span class="mt-2">&nbsp;&nbsp;NEW</span>
                     </a>
                 </div>
@@ -196,16 +196,18 @@
 
     <hr>
     <div class="container-fluid">
-        <table class="table  text-white" id="table">
+        <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+        <table class="table  text-white" id="table" >
             <thead>
                 <tr>
 
                     <th>Date</th>
-                    <th>Customer Name</th>
-                    <th>Email Id</th>
-                    <th>Creditnote No</th>
+                    <th>Creditnote number</th>
+                    <th>Customer name</th>
+                    <th>Email</th>
                     <th>Amount</th>
-                    <th>Action</th>
+                    <th>Status</th>
+                    <th>Balance</th>
 
 
 
@@ -226,10 +228,11 @@
 
 
                     <td><a href="{% url 'creditnote_view' note.id %}">{{ note.creditnote_date }}</a></td>
-                    <td><a href="{% url 'creditnote_view' note.id %}">{{ note.customer.customerName }}</a></td>
+                    <td><a href="{% url 'creditnote_view' note.id %}">{{ note.credit_note }}</a></td>
+                    <td>{{ note.customer.customerName }}</td>
                     <td>{{ note.customer.customerEmail }}</td>
-                    <td>{{ note.invoice_number }}</td>
                     <td>{{ note.total }}</td>
+                    <td></td>
                     <td>
                         <!-- Add the delete icon and a link/button for delete action -->
                         <a href="{% url 'delete_creditnote' pk=note.id  %}" class="btn btn-danger btn-sm">
@@ -241,10 +244,12 @@
 
 
             </tbody>
+        </div>
         </table>
+    
         <div class="card-body" style="margin: 200px;">
-            <img src="https://www.zoho.com/books/accounting-software-demo//assets/images/2x/creditnotes-workflow.png" width="700" height="250" alt="">
-            </div>
+            <!-- <img src="https://www.zoho.com/books/accounting-software-demo//assets/images/2x/creditnotes-workflow.png" width="700" height="250" alt="">
+            </div> -->
 
     </div>
 </div>
@@ -254,114 +259,93 @@
 </div>
 
 </div>
-
+<div class="card-body" style="margin: 200px;">
+    <img src="https://www.zoho.com/books/accounting-software-demo//assets/images/2x/creditnotes-workflow.png" width="700" height="250" alt="">
+    </div>
 
 
 <script>
     ////////////////////////////filteerrrrrrrrrrrr/////////////////////////////
-    function filterTable(filterOption) {
-        var table = document.getElementById("table");
-        var rows = table.getElementsByTagName("tr");
-        console.log("Filter option selected:", filterOption);
+function filterTable(filterOption) {
+    var table = document.getElementById("table");
+    var rows = table.getElementsByTagName("tr");
+    console.log("Filter option selected:", filterOption);
 
-        for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the table header row
-            var isActive = rows[i].dataset.creditnoteStatus;
-            console.log("Row " + i + " isActive:", isActive);
+    for (var i = 1; i < rows.length; i++) {
+        var isActive = rows[i].dataset.creditnoteStatus;
+        console.log("Row " + i + " isActive:", isActive);
 
-            // Check if the row should be displayed or hidden based on the filter option
-            if (
-                (filterOption === 'all') ||
-                (filterOption === 'active' && isActive === 'true') ||
-                (filterOption === 'inactive' && isActive === 'false')
-            ) {
-                rows[i].style.display = ""; // Display the row
+        if (
+            (filterOption === 'all') ||
+            (filterOption === 'active' && isActive === 'true') ||
+            (filterOption === 'inactive' && isActive === 'false')
+        ) {
+            rows[i].style.display = ""; 
+        } else {
+            rows[i].style.display = "none"; 
+        }
+    }
+
+    console.log("Filtering complete.");
+}
+
+// search function
+function searchTable() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("search");
+    filter = input.value.toLowerCase();
+    table = document.getElementById("table");
+    tr = table.getElementsByTagName("tr");
+
+    for (i = 1; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[1]; // Assuming you want to search by Creditnote number
+        if (td) {
+            txtValue = td.innerText.toLowerCase();
+            if (txtValue.indexOf(filter) > -1) {
+                tr[i].style.display = "";
             } else {
-                rows[i].style.display = "none"; // Hide the row
+                tr[i].style.display = "none";
             }
         }
-
-        console.log("Filtering complete.");
     }
+}
 
+// sort function
+function sortTable(columnIndex) {
+    console.log('Sorting table by column index:', columnIndex);
+    var table, rows, switching, i, x, y, shouldSwitch;
+    table = document.getElementById("table");
+    switching = true;
 
+    while (switching) {
+        switching = false;
+        rows = table.rows;
 
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("td")[columnIndex].textContent.trim();
+            y = rows[i + 1].getElementsByTagName("td")[columnIndex].textContent.trim();
 
-    /////////////////searchhhhhhhhhhhhh////////////////////////////////
-
-    function searchTable() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("search");
-        filter = input.value.toLowerCase();
-        table = document.getElementById("table");
-        tr = table.getElementsByTagName("tr");
-
-        for (i = 1; i < tr.length; i++) { // Start from 1 to skip the table header row
-            td = tr[i].getElementsByTagName("td")[1]; // Assuming you want to search by customer name (change [1] as needed)
-            if (td) {
-                txtValue = td.innerText.toLowerCase();
-                if (txtValue.indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
+            if (columnIndex === 1) {  // Sort by Creditnote Number
+                if (parseInt(x.split('-')[1]) > parseInt(y.split('-')[1])) {
+                    shouldSwitch = true;
+                    break;
                 }
-            }
-        }
-    }
-
-
-
-    /////////////////////////sorttttt////////////////////////////////////////////
-    function searchTable() {
-        var input, filter, table, tr, td, i, txtValue;
-        input = document.getElementById("search");
-        filter = input.value.toLowerCase();
-        table = document.getElementById("table");
-        tr = table.getElementsByTagName("tr");
-
-        for (i = 1; i < tr.length; i++) { // Start from 1 to skip the table header row
-            td = tr[i].getElementsByTagName("td")[1]; // Assuming you want to search by customer name (change [1] as needed)
-            if (td) {
-                txtValue = td.innerText.toLowerCase();
-                if (txtValue.indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
-    }
-
-    /////////////////////////sorttttt////////////////////////////////////////////
-    function sortTable(columnIndex) {
-        console.log('Sorting table by column index:', columnIndex);
-        var table, rows, switching, i, x, y, shouldSwitch;
-        table = document.getElementById("table");
-        switching = true;
-
-        while (switching) {
-            switching = false;
-            rows = table.rows;
-
-            for (i = 1; i < (rows.length - 1); i++) {
-                shouldSwitch = false;
-                x = rows[i].getElementsByTagName("td")[columnIndex].textContent.trim(); // Use textContent
-                y = rows[i + 1].getElementsByTagName("td")[columnIndex].textContent.trim(); // Use textContent
-
-                // Check if it should switch to ascending order
-                if (x.localeCompare(y) > 0) { // Use localeCompare for string comparison
+            } else {
+                // For other columns, use localeCompare for string comparison
+                if (x.localeCompare(y) > 0) {
                     shouldSwitch = true;
                     break;
                 }
             }
+        }
 
-            if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-            }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
         }
     }
-
-
+}
 
 </script>
 
