@@ -535,50 +535,8 @@ textWhiteElements.forEach(element => {
 </script>
 
 
-<!--<script>
-  var $rows = $('#table tr');
-  $('#search').keyup(function() {
-      var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-      
-      $rows.hide().filter(function() {
-          var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
-          return ~text.indexOf(val);
-      }).show();
-  });
 
-</script>
 
-<script>
-  $(document).ready(function () {
-    $("#search").on("keyup", function () {
-      var value = $(this).val().toLowerCase();
-      $("#myTable tr").filter(function () {
-        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-      });
-    });
-  });
-</script>-->
-<!-- <script>
-  document.querySelector('.button_ex').addEventListener('click', function () {
-    const element = document.getElementById('contentToExport'); 
-     
-   
-    const pdfOptions = {
-      margin: 1,
-      filename: 'inventory.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale:1  },
-      
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'Landscape' },
-    };
-    
-     html2pdf().from(element).set(pdfOptions).save();
-    
-   
-
-   
-  }); 
-</script> -->
 <script>
 // Function to convert a table to a worksheet object
 function tableToWorksheet(table) {
@@ -633,7 +591,7 @@ $(function() {
       }
   }
 
-  // ... (existing code)
+ 
 });
 
 
