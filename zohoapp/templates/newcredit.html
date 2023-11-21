@@ -183,7 +183,47 @@
           <label for="pos">Place of Supply</label>
         </div>
         <div class="col-md-6">
-          <input type="text" class="form-control bg-light text-dark" id="pos_input" name="place_of_supply" disabled>
+          <!-- <input type="text" class="form-control bg-light text-dark" id="pos_input" name="place_of_supply" disabled> -->
+          <select name="srcofsupply" id="srcofsupply"  id="pos_input" name="place_of_supply"  class="form-control bg-light text-dark"  >
+            <option value="[AN] Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
+            <option value="[AD] Andhra Pradhesh">[AD] Andhra Pradhesh</option>
+            <option value="[AR] Arunachal Pradesh">[AR] Arunachal Pradesh</option>
+            <option value="[AS] Assam">[AS] Assam</option>
+            <option value="[BR] Bihar">[BR] Bihar</option>
+            <option value="[CH] Chandigarh">[CH] Chandigarh</option>
+            <option value="[CG] Chhattisgarh">[CG] Chhattisgarh</option>
+            <option value="[DNH] Dadra and Nagar Haveli">[DNH] Dadra and Nagar Haveli</option>
+            <option value="[DD] Damn anad Diu">[DD] Damn anad Diu</option>
+            <option value="[DL] Delhi">[DL] Delhi</option>
+            <option value="[GA] Goa">[GA] Goa</option>
+            <option value="[GJ] Gujarat">[GJ] Gujarat</option>
+            <option value="[HR] Haryana">[HR] Haryana</option>
+            <option value="[HP] Himachal Pradesh">[HP] Himachal Pradesh</option>
+            <option value="[JK] Jammu and Kashmir">[JK] Jammu and Kashmir</option>
+            <option value="[JH] Jharkhand">[JH] Jharkhand</option>
+            <option value="[KA] Karnataka">[KA] Karnataka</option>
+            <option  value="[KL] Kerala">[KL] Kerala</option>
+            <option value="[LA] Ladakh">[LA] Ladakh</option>
+            <option value="[LD] Lakshadweep">[LD] Lakshadweep</option>
+            <option value="[MP] Madhya Pradesh">[MP] Madhya Pradesh</option>
+            <option value="[MH] Maharashtra">[MH] Maharashtra</option>
+            <option value="[MN] Manipur">[MN] Manipur</option>
+            <option value="[ML] Meghalaya">[ML] Meghalaya</option>
+            <option value="[MZ] Mizoram">[MZ] Mizoram</option>
+            <option value="[NL] Nagaland">[NL] Nagaland</option>
+            <option value="[OD] Odisha">[OD] Odisha</option>
+            <option value="[PY] Puducherry">[PY] Puducherry</option>
+            <option value="[PB] Punjab">[PB] Punjab</option>
+            <option value="[RJ] Rajasthan">[RJ] Rajasthan</option>
+            <option value="[SK] Sikkim">[SK] Sikkim</option>
+            <option value="[TN] Tamil Nadu">[TN] Tamil Nadu</option>
+            <option value="[TS] Telangana">[TS] Telangana</option>
+            <option value="[TR] Tripura">[TR] Tripura</option>
+            <option value="[UP] Uttar Pradesh">[UP] Uttar Pradesh</option>
+            <option value="[UK] Uttarakhand">[UK] Uttarakhand</option>
+            <option value="[WB] West Bengal">[WB] West Bengal</option>
+            <option value="[OT] Other Territory">[OT] Other Territory</option>
+          </select>
         </div>
       </div>
       
@@ -395,6 +435,31 @@ updateCurrentDate();
       
        
         </script>
+        <script>
+          $(document).ready(function () {
+              // Function to update "Place of Supply" based on the selected customer
+              function updatePlaceOfSupply() {
+                  var selectedCustomer = $('#customer_sel option:selected');
+                  var placeOfSupply = selectedCustomer.data('pos');
+      
+                  // Set the value of the "Place of Supply" field using val method
+                  $('#srcofsupply').val(placeOfSupply).trigger('change');
+              }
+      
+              // Change event listener for the customer dropdown
+              $('#customer_sel').change(function () {
+                  updatePlaceOfSupply();
+              });
+      
+              // Initial setup for the customer dropdown
+              $('#customer_sel').select2();
+      
+              // Trigger the change event initially to set the initial "Place of Supply" value
+              updatePlaceOfSupply();
+          });
+      </script>
+      
+      
       
         
       </div> 
@@ -436,20 +501,10 @@ updateCurrentDate();
                     class=' text-right form-control bg-light text-dark' name='quantity[]'
                     value='0' onchange="qtychange(this.id)">
                     
-                <span class="text-warning">Available Stock : <span id="stock_data1" class="text-warning"></span></span>
-            </td>
-            <script>
-
-              function qtychange(id_str){
-                id= id_str.split("item")[1]
-                var qty = $(`#qty${id}`).val();
-                var avl = document.getElementById(`stock_data${id}`).innerHTML;
-                if(parseInt(qty)>parseInt(avl)){
-                  alert("Entered quantity greater than available quantity");  
-                  location.reload();
-                }
-              }     
-            </script>
+                <span class="text-warning">Available Stock : <span class="stock_data text-warning"></span></span>
+                <span class="stock_warning text-danger"></span>
+              </td>
+            
             <td style="width: 12%;" class='text-right text-dark'><input type='number' id='rate1'
                     class=' text-right discount bg-light text-dark form-control rate' name='rate[]'
                     value='0'>
@@ -632,7 +687,8 @@ $('#item_table').on('click', '.delete-row', function () {
                       <td>Advance Paid</td>
                       <td></td>
                       <td><input type="number" id="advance" name="advance" step="any" value="0.00"
-                                 class="form-control bg-transparent border-0 text-right advance text-white" ></td>
+                                 class="form-control bg-transparent border-0 text-right advance text-white" >
+                                 <div style="color: red; display: none;" id="advancediv">Advance is greater than Total</div></td>
                   </tr>
                   <tr>
                       <td>Balance</td>
@@ -640,7 +696,7 @@ $('#item_table').on('click', '.delete-row', function () {
                       <td>
                         <input type="number" id='balance' name="balance" step="any" value="0.00"
                                class="form-control bg-transparent border-0 text-right balance  text-white"  readonly>
-                        <div style="color: red; display: none;" id="advancediv">Advance is greater than Total</div>
+                        
                       </td>
                   </tr>
           </table>
@@ -667,8 +723,10 @@ $('#item_table').on('click', '.delete-row', function () {
        
     
      
-        <input style="width: 150px;margin-right: 2rem;" type="submit" class="btn btn-success mt-2" value="Save">
-           <input style="width: 150px;margin-right: 2rem;" class="btn btn-danger mt-2" type="reset" value="Cancel">
+        <input style="width: 150px;margin-right: 2rem;" type="submit" class="btn btn-success mt-2" value="save" name="save">
+        <input style="width: 150px;margin-right: 3rem; background-color: chocolate;" type="submit" class="btn mt-2" value="draft" name="draft">
+           
+        <input style="width: 150px;margin-right: 2rem;" class="btn btn-danger mt-2" type="reset" value="Cancel">
      
         
        
@@ -3214,7 +3272,20 @@ function reloadAccount() {
 
   });
 
+</script>
+<script>
 
+  function qtychange(id_str){
+    id= id_str.split("item")[1]
+    var qty = $(`#qty${id}`).val();
+    var avl = document.getElementById(`stock_data${id}`).innerHTML;
+    if(parseInt(qty)>parseInt(avl)){
+      alert("Entered quantity greater than available quantity");  
+      location.reload();
+    }
+  }     
+</script>
+<script>
 ///////////////////////////////get hsn & rate////////////////////////////////////////////////////
 
 
@@ -3230,6 +3301,7 @@ function fetchItemData(selectedItem, row) {
             // Update the HSN and rate fields in the current row with the fetched data
             row.find(".hsn").val(response.hsn);
             row.find(".rate").val(response.rate);
+            row.find(".stock_data").text(response.stock);  // Add this line to update available stock
         },
         error: function () {
             // Handle errors if the data cannot be fetched or the item doesn't exist
@@ -3263,16 +3335,53 @@ $(document).on('change', '.item_select', function () {
       // Update the HSN and rate fields in the current row with the fetched data
       row.find(".hsn").val(response.hsn);
       row.find(".rate").val(response.rate);
+
+      // Trigger the updateAvailableStock function after fetching item details
+      updateAvailableStock(row);
     },
     error: function () {
       // Handle errors if the data cannot be fetched or the item doesn't exist
       console.log('Error fetching item data.');
-      // You can display an error message to the user if needed.
+     
     },
   });
+
+})
+
+// Function to update Available Stock and display warning message if necessary
+function updateAvailableStock(row) {
+  var selectedItem = row.find(".item_select").val();
+  var quantity = parseInt(row.find(".quantity").val());
+  var availableStock = parseInt(row.find(".stock_data").text());
+
+  if (isNaN(quantity) || isNaN(availableStock)) {
+    // Handle invalid input (non-numeric values)
+    return;
+  }
+
+  // Update Available Stock span
+  row.find(".stock_data").text(availableStock - quantity);
+
+  // Display a warning message if the entered quantity is greater than available stock
+  if (quantity > availableStock) {
+    row.find(".stock_warning").text("Entered quantity greater than available quantity").css('color', 'red');
+  } else {
+    row.find(".stock_warning").text('').css('color', ''); // Reset the warning message
+  }
+}
+
+// Add event handler for changes in item selection
+$(document).on('change', '.item_select', function () {
+  var selectedItem = $(this).val();
+  var row = $(this).closest('tr');
+  fetchItemData(selectedItem, row);
 });
 
-
+// Add event handler for changes in quantity
+$(document).on('change', '.quantity', function () {
+  var row = $(this).closest('tr');
+  updateAvailableStock(row);
+});
 
   </script>
   
@@ -3431,6 +3540,35 @@ $('#shipping, #adjustment').on('input', function () {
     calculateGrandTotal();
 })
     });
+  </script>
+
+ <script>
+      function updateBalance() {
+            var grandTotal = parseFloat($('#grandtotal').val()) || 0;
+            var advancePaid = parseFloat($('#advance').val()) || 0;
+
+            var balance = grandTotal - advancePaid;
+
+            // Display the balance amount
+            $('#balance').val(balance.toFixed(2));
+
+            // Show/hide the warning message based on the balance
+            if (advancePaid > grandTotal) {
+                $('#advancediv').show();
+            } else {
+                $('#advancediv').hide();
+            }
+        }
+
+        // Event handlers for changes in shipping and adjustment fields
+        $('#shipping, #adjustment').on('input', function () {
+            calculateGrandTotal();
+        });
+
+        // Event handler for changes in the advance amount
+        $('#advance').on('input', function () {
+            updateBalance();
+        });
   </script>
   
 {% endblock %}

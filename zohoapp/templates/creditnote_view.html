@@ -326,15 +326,16 @@
                             });
                             </script>
                             
-                            <div class="col-md-2 mt-2 mx-1">
-                                <a id="sort-button" class="btn text-center btn-primary bi bi-sort-down px-3 py-1" data-bs-toggle="dropdown" role="button"></a>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" data-sort="customer">Sort by Customer</a>
-                                    <a class="dropdown-item" href="#" data-sort="amount">Sort by Amount</a>
-                                </div>
+                        <div class="col-md-2 mt-2 mx-1">
+                            <a id="sort-button" class="btn text-center btn-primary bi bi-funnel px-3 py-1" data-bs-toggle="dropdown" role="button"></a>
+                            <div class="dropdown-menu " >
+                                <a class="dropdown-item" href="#" data-sort="customer-az">Customer A-Z</a>
+                                <a class="dropdown-item" href="#" data-sort="customer-za">Customer Z-A</a>
+                                <a class="dropdown-item" href="#" data-sort="amount">Amount</a>
                             </div>
-                            
-                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        </div>
+                        
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
         // Cache the customer table for faster access
@@ -351,18 +352,46 @@
         function sortCustomers(sortOption) {
             var $customers = customerTable.find("tbody tr");
             switch (sortOption) {
-                case "customer":
+                case "customer-az":
                     $customers.sort(function (a, b) {
                         var textA = $(a).find("td:eq(0)").text().toLowerCase();
                         var textB = $(b).find("td:eq(0)").text().toLowerCase();
                         return textA.localeCompare(textB);
                     });
                     break;
-                case "amount":
+                case "customer-za":
                     $customers.sort(function (a, b) {
-                        var amountA = parseFloat($(a).find("td:eq(1)").text().replace(/[^\d.]/g, ''));
-                        var amountB = parseFloat($(b).find("td:eq(1)").text().replace(/[^\d.]/g, ''));
+                        var textA = $(a).find("td:eq(0)").text().toLowerCase();
+                        var textB = $(b).find("td:eq(0)").text().toLowerCase();
+                        return textB.localeCompare(textA);
+                    });
+                    break;
+                case "creditnote-asc":
+                    $customers.sort(function (a, b) {
+                        var noteA = parseInt($(a).find("td:eq(1)").text().replace("# ", ""));
+                        var noteB = parseInt($(b).find("td:eq(1)").text().replace("# ", ""));
+                        return noteA - noteB;
+                    });
+                    break;
+                case "creditnote-desc":
+                    $customers.sort(function (a, b) {
+                        var noteA = parseInt($(a).find("td:eq(1)").text().replace("# ", ""));
+                        var noteB = parseInt($(b).find("td:eq(1)").text().replace("# ", ""));
+                        return noteB - noteA;
+                    });
+                    break;
+                case "amount-asc":
+                    $customers.sort(function (a, b) {
+                        var amountA = parseFloat($(a).find("td:eq(2)").text().replace("₹", ""));
+                        var amountB = parseFloat($(b).find("td:eq(2)").text().replace("₹", ""));
                         return amountA - amountB;
+                    });
+                    break;
+                case "amount-desc":
+                    $customers.sort(function (a, b) {
+                        var amountA = parseFloat($(a).find("td:eq(2)").text().replace("₹", ""));
+                        var amountB = parseFloat($(b).find("td:eq(2)").text().replace("₹", ""));
+                        return amountB - amountA;
                     });
                     break;
             }
@@ -372,8 +401,7 @@
         }
     });
 </script>
-                            
-                            
+
                             
                         <div class="col-md-2 mr-4 mt-2">
                             <a href="{% url 'newcredit' %}" class="btn btn-primary fa fa-plus px-3 pt-1"
@@ -416,10 +444,10 @@
                 </div>
 
                 <div class="d-flex" style="float: right; margin-right: 25px;">
-                    <!-- <div class="m-0">
+                    <div class="m-0">
                         <a href="" class=" far fa-comment-alt btns px-2 py-2" title="COMMENTS"
                             data-toggle="modal" data-target="#cmnts"> </a>
-                    </div> -->
+                    </div>
 
                     <div class="mx-1">
                         
@@ -429,38 +457,6 @@
                         <a href="{% url 'delete_creditnote' pk=creditnote.id  %} " class="delete fa fa-trash btns px-2 py-2"
                          data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this creditnote?');"> </a>
                     </div>
-                    <div class="mx-0">
-                        <div class="dropdown p-0">
-                            <a href="#" class="fas fa-share dropdown-toggle btns px-2 py-2"  
-                                data-bs-toggle="dropdown" id="shareDropdown" aria-haspopup="true" aria-expanded="false" title="SHARE"></a>
-                    
-                            <div class="dropdown-menu" aria-labelledby="shareDropdown">
-                                <a class="dropdown-item" href="#" id="shareByEmail">Share via Email</a>
-                                <a class="dropdown-item" href="#" id="shareByWhatsApp">Share via WhatsApp</a>
-                            </div>
-                        </div>
-                    </div>
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                            const shareByEmailButton = document.getElementById("shareByEmail");
-                            const shareByWhatsAppButton = document.getElementById("shareByWhatsApp");
-                    
-                            // Replace these placeholder URLs with your actual share URLs
-                            const emailShareUrl = "mailto:?subject=Check%20out%20this%20expense&body=Here%20is%20the%20link%20to%20the%20expense:%20[PLACEHOLDER_URL]";
-                            const whatsappShareUrl = "https://wa.me/?text=Check%20out%20this%20expense:%20[PLACEHOLDER_URL]";
-                    
-                            shareByEmailButton.addEventListener("click", function (event) {
-                                event.preventDefault();
-                                window.location.href = emailShareUrl.replace("[PLACEHOLDER_URL]", window.location.href);
-                            });
-                    
-                            shareByWhatsAppButton.addEventListener("click", function (event) {
-                                event.preventDefault();
-                                window.location.href = whatsappShareUrl.replace("[PLACEHOLDER_URL]", window.location.href);
-                            });
-                        });
-                    </script>
-                    
 
                     <div class="mx-1">
                    
@@ -484,11 +480,7 @@
                         window.location.reload();
                     }
                  </script>
-                 <div class="m-0">
-                    <a href="" class=" far fa-comment-alt btns px-2 py-2" title="COMMENTS"
-                        data-toggle="modal" data-target="#cmnts"> </a>
-                </div>
-                    <div class="mx-1">
+                    <div class="m-0">
                         <div class="dropdown m-0 p-0">
                             <a href=" " class=" fas fa-paperclip dropdown-toggle btns px-2 py-2"  
                                 data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
@@ -503,8 +495,13 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
-                       
+                        <div class="m-0">
+                            <div class="dropdown m-0 p-0">
+                                
+                               
+                                    <button style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;margin-top:-3.8rem;margin-left:50px; color: rgb(240, 236, 236); background-color: darkgoldenrod;" class="creditnote-toggle-button btn btn-warning px-2 py-2" data-creditnote-id="{{ creditnote.id }}" data-creditnote-status="{{ creditnote.active }}">{{ creditnote.active|yesno:"Active,Inactive" }}</button>    
+                            </div>
+                        </div>
                     </div>
 
 
@@ -576,14 +573,12 @@
                                 class="fa fa-file-word "></i> Template</a>
                         <a class="tablinks  btns px-2 py-2" onclick="openTab('Overview')" role="button" id="overview-btn"><i class="fa fa-eye"></i>
                             Overview</a>
-                            <a class="tablinks  btns px-2 py-2" onclick="" role="button" id=""><i class="fa fa-file"></i>
-                                slip</a>
                     </div>
             </div>
             <hr class="hr">
 
         <div style="position: relative;">
-            <div id="Template" class=" print-only page tabcontent p-5 m-3" style="display: block; visibility: visible; background-color:azure; overflow: auto;">
+            <div id="Template" class=" print-only page tabcontent p-5 m-3" style="display: block; visibility: visible; background-color:azure">
                 <div class="row pt-0 m-0 text-center">
                     <div class="col-4 "></div>
                     <div class="col-4 ">
@@ -742,175 +737,8 @@
                         </div>
                     </div>
                 </section> 
-                <div class="form formprint1" id="form1" >
-                    <div id="printdiv2">
-                        <div class="card" >
-                            <div class="card-header">
-                                <h1 style="text-align:center;">CREDITNOTES</h1>
-                            </div>
-                            <div  style="margin-left: 300px;">
-                                <p style=""><b> Date : </b>&nbsp <span style=""><b>{{ creditnote.creditnote_date|date:'d-m-Y' }}</b></span></p>
-                            </div>
-                            <div style="text-align: center;">
-                                <div class="row mb-4">
-                                    <div class="col-sm-6" style="margin-left: 180px;">
-                                        <h6 class="mb-3 text-uppercase" style="font-size:35px;"><b>{{company.company_name }}</b></h6>
-                                    <div>
-                                    <strong> {{company.address}}</strong>
-                                </div>
-                                <div>{{company.city}}</div>
-                                <div>  {{company.state}}</div>
-                                <div> {{company.pincode}}</div>
-                        
-                            </div>
-            
-            
-                            <div class="card-body" style="text-align: left; margin-left:80px;">
-                                <div class="row mb-4">
-                                    <div class="col-sm-6">
-                                        <p class="text-capitalize" id="pid" hidden>{{expense.id}}</p>
-            
-                                        <h6 class="mb-3">Bill To;</h6>
-                                    <div>
-                                    <strong>{{ vendor.salutation}}{{vendor.first_name}} {{ vendor.last_name}} </strong>
-                                </div>
-                                {% if expense.gst_treatment != 'unregistered Business' %} 
-                                <div>{{vendor.gst_number}}</div>
-                                {% endif %} 
-                                <div> {{vendor.vendor_email}}</div>
-                                <div> {{vendor.bstreet}}</div>
-                                <div> {{vendor.bcity}}</div>
-                                <div>  {{vendor.bstate}}</div>
-                                <div>  {{vendor.bpin}}</div>
-                    
-                            </div>
-                    
-                            <div class="col-sm-6" style="text-align: right;">
-                                <h6 class="mb-2" style="margin-right:100px;">Deliver To,</h6>
-                                <div>
-                                    <strong style="margin-right:100px;">{{creditnote.customer.customerName}}</strong>
-                                </div>
-                                {% if creditnote.customer.GSTIN != None %}
-                                <div style="margin-right:100px;">  {{creditnote.customer.GSTIN}}</div>
-                                {% endif %}
-                                <div style="margin-right:100px;">{{creditnote.customer.customerEmail}}</div>
-                                <div style="margin-right:100px;">{{creditnote.customer.Address1}}</div>
-                                <div style="margin-right:100px;"> {{creditnote.customer.city}}</div>
-                                <div style="margin-right:100px;">{{creditnote.customer.state}}</div>
-            
-                                <div style="margin-right:100px;"> {{creditnote.customer.zipcode}}</div>
-                            </div>
-                
-                    
-                    
-                        
-                    
-                            <div class="table-responsive-sm">
-                                    <table class="table   table-striped table-active table-secondary">
-                                            <thead>
-                                                <tr>
-                                                    <th class="center">#</th>
-                                                    <th>Start Date</th>
-                                                    <th>Profile Name</th>
-                                                    
-                                                    <th class="right">Amount</th>
-                                                    
-                                                </tr>
-                                            </thead>
-                                            <tbody class="text-dark">
-                                                <tr >
-                                                    <td class="center"  style="color:000;">{{ forloop.counter }}</td>
-                                                    <td class="left strong" style="color:000">{{ creditnote.creditnote_date|date:'d-m-Y' }}</td>
-                                                    <td class="left"  style="color:000"> {{creditnote.customer.customerName}}</td>
-                                                    
-                                                    <td class="right"  style="color:000;">{{ creditnote.total|floatformat:2 }}</td>
-                                                        
-                                                </tr>
-                                        
-                                            </tbody>
-                                    </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form formprint2" id="form2" style="margin-top:10px;">
-                    
-                    <div class="card" >
-                        <div id="printdiv3">
-                            <div class="card-header text-dark "style="background-image: linear-gradient(#1b83e8, black);">
-                                <h1 class="" style="text-align:center;background-image: linear-gradient(#1b83e8, black);color:white;">CREDITNOTES</h1>
-                            </div>
-                            <div style="text-align: center;">
-                                <p style="color:black;">Date: <span style="color:black;">{{ creditnote.creditnote_date|date:'d-m-Y' }}</span></p>
-                            </div>
-                        
-                            <div class="row">
-                                <div class="col-sm-6" style="margin-left: 450px;">
-                                    <h6 class="mb-3 text-uppercase" style="font-size:15px;color:darkblue"><b>{{company.company_name}}</b></h6>
-                                    <div><strong>{{company.address}}</strong></div>
-                                    <div>{{company.city}}</div>
-                                    <div>{{creditnote.state}}</div>
-                                    <div>{{creditnote.pincode}}</div>
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top:15px; color:black;">
-                                <div class="col-sm-4" style="text-align: left;margin-left:30px;">
-                                    <p class="text-capitalize" id="pid" hidden>{{expense.id}}</p>
-                                    <div><h6 class="mb-3 text-dark font-italic">Bill To;</b></div>
-                                    <div><strong>{{ creditnote.customer.customerName }} </strong></div>
-                                    {% if creditnote.customer.GSTTreatment != 'unregistered Business' %}
-                                    <div>{{creditnote.customer.GSTTreatment}}</div>
-                                    {% endif %}
-                                    <div>{{vendor.vendor_email}}</div>
-                                    <div>{{ creditnote.customer.city }}
-                                        {{ creditnote.customer.state }},
-                                        {{ creditnote.customer.zipcode }}</div>
-                                </div>
-                            
-                                <div class="col-sm-3 float-end" >
-                                    <h6 class="mb-2 text-dark font-italic">Deliver To;</h6>
-                                    <div><strong>{{creditnote.customer.customerName}}</strong></div>
-                                    {% if creditnote.customer.GSTIN != None %}
-                                    <div>{{creditnote.customer.GSTIN}}</div>
-                                    {% endif %}
-                                    <div>{{ creditnote.customer.customerEmail }}</div>
-                                    <div>{{customer.Address1}}</div>
-                                    <div>{{customer.city}}</div>
-                                    <div>{{customer.state}}</div>
-                                    <div>{{customer.zipcode}}</div>
-                                </div>
-                            </div>
-                            <section class="product-area mt-2">
-                            
-                                <div class="table-responsive-sm">
-                                    <table class="table table-striped table-active ">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th class="center">#</th>
-                                                <th>Date</th>
-                                                <th>Customer Name</th>
-                                                <th class="right">Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody style="background-color: #999999;">
-                                            <tr>
-                                                <td class="center text-dark" style="color:000;">{{ forloop.counter }}</td>
-                                                <td class="left strong text-dark" style="color:000;">{{ creditnote.creditnote_date|date:'d-m-Y' }}</td>
-                                                <td class="left text-dark" style="color:000;">{{creditnote.customer.customerName}}</td>
-                                                <td class="right text-dark" style="color:000;"d>{{ creditnote.total|floatformat:2 }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
-                        </div>
-                    </div>
-               
-            </div>
-
 
             </div>
-            
 
 
             <!-- overview -->
@@ -1155,8 +983,6 @@
                             </div>
                             {% endif %}
 
-
-
                             <!-- Total Tax -->
                             <div class="row mb-4 d-flex justify-content-between align-items-center">
                                 <div class="col-md-6 mt-3">
@@ -1177,7 +1003,6 @@
                                 </div>
                             </div>
 
-                            
                          <!-- Adjustment -->
                             <div class="row mb-4 d-flex justify-content-between align-items-center">
                                 <div class="col-md-6 mt-3">
@@ -1204,15 +1029,10 @@
                     </div>
                 </div>
             </div>
-            
 
         </div>
-
-        
     </div>
-    
     </div>
-  
 
     <!-- comment modal -->
 
@@ -1381,9 +1201,6 @@
 
 
 <script>
-     document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("overview-btn").click();
-    });
     function openTab(tabName) {
         var template = document.getElementById('Template');
         var overview = document.getElementById('Overview');
@@ -1637,7 +1454,7 @@
           <h6 style="margin-top: -1.8rem; margin-left: 13rem;font-size:20px;" id="repeat-every">{{ expense.repeat_every }}</h6><br>
     
            <h6 class="mr-5">Start Date:</h6>
-           <h6 style="margin-top: -1.7rem; margin-left: 13rem;font-size:20px;" id="start-date">{{ creditnote.creditnote_date }}</h6> 
+           <h6 style="margin-top: -1.7rem; margin-left: 13rem;font-size:20px;" id="start-date" >{{expense.start_date}}</h6> 
     
            <h6 class="mr-4 ">Ends On:</h6>
            <h6 style="margin-top: -1.9rem; margin-left: 13rem; margin-bottom: 2rem;font-size:20px;" id="ends-on">{{expense.ends_on}}</h6> 
@@ -1849,7 +1666,7 @@ function updateDetails(data) {
     commentsList.innerHTML = '';
   
     comments.forEach(comment => {
-      const listItem = document.createElement('li');
+      const listItem = document.createElement('li'); 
       listItem.textContent = comment;
       commentsList.appendChild(listItem);
     });
