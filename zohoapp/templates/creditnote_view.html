@@ -12,6 +12,9 @@
 
 
 <style>
+    #overview{
+        height: 1000px;
+    }
    
     .containerprof {
         min-height: 450px;
@@ -256,7 +259,7 @@
      
         
     }
-    {% comment %} @media print {
+     @media print {
         /* Define print-specific styles here */
         body * {
             visibility: hidden;
@@ -279,7 +282,7 @@
             margin-left: 2vh;
             margin-right: 2vh;
         }
-    } {% endcomment %}
+    }
 
 
 
@@ -434,8 +437,8 @@ body {
         background-color:#A9A9A9;
         color: #bcd0f7;
         background: #1A233A;
-        height:700px;
-        width:850px;
+        height:900px;
+        width:900px;
         overflow-x:hidden;
        
     }
@@ -445,9 +448,9 @@ body {
         z-index:9999;
         background-color: white;
         color:black;
-        width:850px;
+        width:900px;
         font-family: Verdana, sans-serif;
-        height:700px; 
+        height:900px; 
         
     }
     
@@ -455,8 +458,8 @@ body {
     #form3 {
         z-index:9999;
         background-color: white;
-        width:800px;
-        height:850px;
+        width:900px;
+        height:800px;
     }
     
   
@@ -469,31 +472,98 @@ body {
                 <div class="card-title">
                     <div class="row p-1">
                         <div class="col-md-10">
-                            <h6 class="mb-1 text-uppercase text-left">All Expense</h6>
+                            <h6 class="mb-1 text-uppercase text-left">All Customers..</h6>
                         </div>
                     </div>
                     <div class="row p-0 d-flex">
                         <div class="col-md-7">
                             <input type="text" id="search" placeholder="Search..." class="form-control text-dark bg-light" autocomplete="off"  >
                         </div>
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            $(document).ready(function() {
+                                // Cache the customer table for faster access
+                                var customerTable = $("table");
+                            
+                                // Handle keyup event on the search input
+                                $("#search").keyup(function() {
+                                    var searchText = $(this).val().toLowerCase();
+                            
+                                    // Hide all rows initially
+                                    customerTable.find("tbody tr").hide();
+                            
+                                    // Show rows that match the search criteria
+                                    customerTable.find("tbody tr").each(function() {
+                                        var customerName = $(this).find("td:eq(0)").text().toLowerCase();
+                                        var creditNoteNumber = $(this).find("td:eq(1)").text().toLowerCase();
+                                        var totalAmount = $(this).find("td:eq(2)").text().toLowerCase();
+                            
+                                        // Clean up creditNoteNumber and totalAmount by removing special characters and whitespace
+                                        creditNoteNumber = creditNoteNumber.replace(/[^0-9]/g, '');
+                                        totalAmount = totalAmount.replace(/[^0-9.]/g, '');
+                            
+                                        if (
+                                            customerName.includes(searchText) ||
+                                            creditNoteNumber.includes(searchText) ||
+                                            totalAmount.includes(searchText)
+                                        ) {
+                                            $(this).show();
+                                        }
+                                    });
+                                });
+                            });
+                            </script>
 
-                        <div class="col-md-2 mt-2 mx-1">
-                            <a class="btn text-center px-3 pt-2 btn-outline-warning status" data-bs-toggle="dropdown" data-bs-target="#filter-dropdown" aria-haspopup="true" aria-expanded="false" role="button">
-                                <i class="fa fa-filter"></i>
-                            </a>
-                           
-                            <div class="dropdown-menu" id="filter-dropdown">
-                              
-                                <a class="dropdown-item dropdown-filter" href="{% url 'show_recurring' expense.id %}">All</a>
-                                <a class="dropdown-item dropdown-filter" href="{% url 'recurring_expense_save' expense.id%}">Save</a>
-                                <a class="dropdown-item dropdown-filter" href="{% url 'recurring_expense_draft' expense.id%}" >Draft</a> 
-                               
+                            <div class="col-md-2 mt-2 mx-1">
+                                <a id="sort-button" class="btn text-center px-3 pt-2 btn-outline-warning"  data-bs-toggle="dropdown" role="button"><i class="fa fa-sort"></i></a>
+                                </i>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-sort="customer">Sort by Customer</a>
+                                    <a class="dropdown-item" href="#" data-sort="amount">Sort by Amount</a>
+                                </div>
                             </div>
                             
-                        </div>
+                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Cache the customer table for faster access
+        var customerTable = $(".customer-table");
+
+        // Handle click event on the sort buttons
+        $(".dropdown-item").click(function (e) {
+            e.preventDefault();
+            var sortOption = $(this).data("sort");
+            sortCustomers(sortOption);
+        });
+
+        // Function to sort customers
+        function sortCustomers(sortOption) {
+            var $customers = customerTable.find("tbody tr");
+            switch (sortOption) {
+                case "customer":
+                    $customers.sort(function (a, b) {
+                        var textA = $(a).find("td:eq(0)").text().toLowerCase();
+                        var textB = $(b).find("td:eq(0)").text().toLowerCase();
+                        return textA.localeCompare(textB);
+                    });
+                    break;
+                case "amount":
+                    $customers.sort(function (a, b) {
+                        var amountA = parseFloat($(a).find("td:eq(1)").text().replace(/[^\d.]/g, ''));
+                        var amountB = parseFloat($(b).find("td:eq(1)").text().replace(/[^\d.]/g, ''));
+                        return amountA - amountB;
+                    });
+                    break;
+            }
+
+            // Update the table with the sorted rows
+            customerTable.find("tbody").empty().append($customers);
+        }
+    });
+</script>
 
                         <div class="col-md-2 mr-4 mt-2">
-                            <a href="{% url 'recurringhome' %}" class="btn btn-outline-warning fa fa-plus px-3 pt-2"
+                            <a href="{% url 'newcredit' %}" class="btn btn-outline-warning fa fa-plus px-3 pt-2"
                                 role="button">
                             </a>
                         </div>
@@ -502,29 +572,29 @@ body {
                 </div>
                 <div class="border-bottom"></div>
 
-                <div id="expenses-container" class="row mt-5 bills overflow-auto">
-                  {% for e in expenses %}
-                        <a href="{% url 'show_recurring' e.id %}" class="my-3">
-                            
-                            <div class="row mt-3">
-                                <div class="col-md-7">
-                                    <label style="color: azure; font-size: 18px;" class="mx-3 text-capitalize text-center pname" >{{e.profile_name}}</label><br>
-                                        <!-- <label style="color: rgb(129, 126, 126); font-size: 15px;" class="mx-3 px-2"># RB- {{ b.id }} </label> -->
-                                        <label style="color: rgb(129, 126, 126); font-size: 15px; "class="mx-2 px-2"> {{ e.start_date }} </label>
-                                </div>
-                                <!-- <div class="col-md-1"></div> -->
-                                <div class="col-md-5 mt-3">
-                                    <label style="color: rgb(129, 126, 126); font-size: 15px;">₹ {{ e.amount|floatformat:2 }} </label>
-                                    <label style="color: rgb(129, 126, 126); font-size: 15px;">{{ e.status }} </label>
-                                </div>
-                            </div>
+                <div id="customer-container" class="row mt-5 bills overflow-auto">
+                    <table class="table customer-table">
+                       
+                       <tbody>
+                           {% for creditnote in creditnotes %}
+                           <tr>
+                               <td style="color: #f1f1f1; font-size: medium;"><a href="{% url 'creditnote_view' creditnote.id %}">{{ creditnote.customer.customerName }}
+                                   <br>
+                                {{ creditnote.credit_note }}
+                               </td>
 
-                        </a> 
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
+                                <br>
+                              <td style="color: #f1f1f1; font-size: medium;"> ₹ {{ creditnote.total|floatformat:2 }}</a></td>
+                           </tr>
+                           {% endfor %}
+                       </tbody>
+                   </table>
+               </div>
+               
+               
+           </div>
+       </div>
+   </div>
     <div id="quick-template" class="quick-template">
         <div class="card radius-15 " style="border-bottom: 0.5px solid; color: dimgray;">
             <div class="card-body">
@@ -534,7 +604,7 @@ body {
 
                 <div class="d-flex" style="float: right; margin-right: 25px;">
                     <div class="m-0">
-                        <a href="{% url 'edit_expense' expense.id %}" class=" fa fa-pencil btns px-2 py-2"
+                        <a href="{% url 'edit_creditnote' pk=creditnote.pk %}" class=" fa fa-pencil btns px-2 py-2"
                         data-toggle="tooltip" title="EDIT"> </a>
                         <a href="" class=" far fa-comment-alt btns px-2 py-2" title="COMMENTS"
                             data-toggle="modal" data-target="#cmnts"> </a>
@@ -543,8 +613,21 @@ body {
 
                     <div class="mx-1">
                        
-                        <a href="{% url 'delete_expense' expense.id %} " class="delete fa fa-trash btns px-2 py-2"
-                         data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this Recurring Expense?');"> </a>
+                        <a href="{% url 'delete_creditnote' pk=creditnote.id  %}  " class="delete fa fa-trash btns px-2 py-2"
+                         data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this creditnote?');"> </a>
+                    </div>
+                        <div class="m-0">
+                            <div class="dropdown  m-0 p-0  btns px-1 py-1" title="slip" style="height:2rem;width:2.5rem" >
+                                <a href=" " class=" fas fa-receipt dropdown-toggle   text-white ms-0 px-1 py-1"  
+                                    data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
+                                </a>
+
+                                <div class="dropdown-menu  no-print" aria-labelledby="attachmentDropdown">
+                                    <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i class="fas fa-eye"></i>View</a>
+                                    <a class="dropdown-item" id="slip" style="cursor: pointer;" onclick="printSection('slipdiv')"><i class="fas fa-print"></i>&nbsp;Print</a>
+                                            
+                                </div>
+                            </div>
                     </div>
 
                     <div class="mx-1 d-inline-flex align-items-start gap-2">
@@ -571,25 +654,106 @@ body {
                         {% comment %} <a href="#" class=" fa fa-print btns px-2 py-2"   id="printTemplate3"
                             title="PRINT"  onclick="printSection('form3')"  style="display:none;"> </a> {% endcomment %}
 
-                        <a href="" class="fa fa-envelope btns px-2 py-2" 
-                            title="MAIL" data-toggle="modal" data-target="#emails" > </a>
+                        
 
-                        <a href="{% url 'covert_to_status' expense.id %}" class=" fa fa-arrows-h btns px-2 py-2 convert"
-                            data-toggle="tooltip" title="CONVERT" > </a>
+                        <a href="{% url 'convert_creditnote_status' id=creditnote.id %}" class=" fa fa-arrows-h btns px-2 py-2"
+                            data-toggle="tooltip" title="CONVERT" id="convertStatus" > </a>
                              
                     </div>
-                    <div class="m-0">
-                        <div class="dropdown  m-0 p-0  btns px-1 py-1" title="slip" style="height:2rem;width:2.5rem" >
-                            <a href=" " class=" fas fa-receipt dropdown-toggle   text-white ms-0 px-1 py-1"  
-                                data-bs-toggle="dropdown" id="attachmentDropdown" aria-haspopup="true" aria-expanded="false"> 
-                            </a>
-
-                            <div class="dropdown-menu  no-print" aria-labelledby="attachmentDropdown">
-                                <a class="dropdown-item" style="cursor: pointer;" onclick="show_slip()"><i class="fas fa-eye"></i>View</a>
-                                <a class="dropdown-item" id="slip" style="cursor: pointer;" onclick="printSection('slipdiv')"><i class="fas fa-print"></i>&nbsp;Print</a>
-                                        
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                      const creditnoteButtons = document.querySelectorAll(".creditnote-toggle-button");
+                      console.log("Found buttons:", creditnoteButtons);
+                    
+                      function getCookie(name) {
+                        const value = `; ${document.cookie}`;
+                        const parts = value.split(`; ${name}=`);
+                        if (parts.length === 2) return parts.pop().split(";").shift();
+                      }
+                    
+                      creditnoteButtons.forEach(function (button) {
+                        console.log("Adding click listener to button:", button);
+                    
+                        button.addEventListener("click", function (event) {
+                          event.preventDefault();
+                    
+                          const creditnoteId = this.getAttribute("data-creditnote-id");
+                          console.log("Clicked on button with creditnoteId: ", creditnoteId);
+                    
+                          const csrfToken = getCookie("csrftoken");
+                    
+                          const timestamp = new Date().getTime();
+                    
+                          fetch(`/update_creditnote_status/${creditnoteId}/?timestamp=${timestamp}`, {
+                            method: "POST",
+                            headers: {
+                              "X-CSRFToken": csrfToken,
+                              "Content-Type": "application/json",
+                            },
+                          })
+                            .then((response) => response.json())
+                            .then((data) => {
+                              console.log("Response from server:", data);
+                    
+                              if (data.success) {
+                                // Update the button text
+                                this.textContent = data.newStatus;
+                    
+                                // Update the data-creditnote-status attribute
+                                const creditnoteElement = document.querySelector(`#creditnote${creditnoteId}`);
+                                if (creditnoteElement) {
+                                  creditnoteElement.setAttribute("data-creditnote-status", data.newStatus);
+                                }
+                    
+                                // Update the status element
+                                const statusElement = document.querySelector(`#status${creditnoteId}`);
+                                if (statusElement) {
+                                  statusElement.textContent = data.newStatus;
+                                }
+                              } else {
+                                console.error("Failed to update status.");
+                              }
+                            })
+                            .catch((error) => {
+                              console.error(error);
+                            });
+                        });
+                      });
+                    });
+                    </script>
+                    <div class="mx-0">
+                        <div class="dropdown p-0">
+                            <a href="#" class="fas fa-share dropdown-toggle btns px-2 py-2"  
+                                data-bs-toggle="dropdown" id="shareDropdown" aria-haspopup="true" aria-expanded="false" title="SHARE"></a>
+                    
+                            <div class="dropdown-menu" aria-labelledby="shareDropdown">
+                                <a class="dropdown-item" href="#" id="shareByEmail">Share via Email</a>
+                                <a class="dropdown-item" href="#" id="shareByWhatsApp">Share via WhatsApp</a>
                             </div>
                         </div>
+                    </div>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const shareByEmailButton = document.getElementById("shareByEmail");
+                            const shareByWhatsAppButton = document.getElementById("shareByWhatsApp");
+                    
+                            // Replace these placeholder URLs with your actual share URLs
+                            const emailShareUrl = "mailto:?subject=Check%20out%20this%20expense&body=Here%20is%20the%20link%20to%20the%20expense:%20[PLACEHOLDER_URL]";
+                            const whatsappShareUrl = "https://wa.me/?text=Check%20out%20this%20expense:%20[PLACEHOLDER_URL]";
+                    
+                            shareByEmailButton.addEventListener("click", function (event) {
+                                event.preventDefault();
+                                window.location.href = emailShareUrl.replace("[PLACEHOLDER_URL]", window.location.href);
+                            });
+                    
+                            shareByWhatsAppButton.addEventListener("click", function (event) {
+                                event.preventDefault();
+                                window.location.href = whatsappShareUrl.replace("[PLACEHOLDER_URL]", window.location.href);
+                            });
+                        });
+                    </script>
+                    <div class="m-0">
+                        
                     </div>
                         
                     <div class="m-0">
@@ -608,11 +772,7 @@ body {
                                
                             </div>
                         </div>
-                        <div class="m-0">
-                            <div class="dropdown m-0 p-0">
-                                <a style="font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;margin-top:-3.8rem;margin-left:60px;" class="expense-toggle-button btn btn-warning px-2 py-2" href="#" data-expense-id="{{ expense.id }}">{{ expense.activation_tag}}</a>
-                            </div>
-                        </div>
+                       
                       
                         
                     </div>
@@ -627,15 +787,165 @@ body {
                             class="fa fa-file-word "></i> Template</a>
                     <a class="tablinks  btns px-2 py-2" onclick="openTab('Overview')" role="button" id="overview-btn"><i class="fa fa-eye"></i>
                         Overview</a>
+                     
+                  
                 </div>
             </div>
             <hr class="hr">
+            <div id="slipdiv" style=" border-radius: 2vh; display: none; ">
+            <div class="p-5"  >
+                <div class="my-5 page" size="A4"  id="div-to-pdf" >
+                    
+                      
+                        <div class="col-md-6 ml-3"  >
+                            <div class="card bg-white" style="border: 2px dotted black;"  >
+                                <div class="mt-2" style="text-align: center;"  >
+                                    <div class="text-center" style="font-size: 3vh; color: black;"  >
+                                        <b  style="font-size: 3vh; color: black;" >{{company.company_name }} </b>
+                                    </div>
+                                    <span style="font-size: x-small; color: black;">{{ company.address }} <br>
+                                        {{company.city}},
+                                        {{company.state}}
+                                        {{company.pincode}} <br>
+                                        {{ company.contact_number }} <br>{{ company.company_email }} 
+                                    </span>
+                                </div>
+                                <center>
+                                    
+                                <div class="ml-4 mt-2" style="color: black;font-size:14px ">
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 text-left" style="color: black;font-size:14px ">Invoice Number:</div>
+                                        <div class="col-md-5 text-right" style="color: black;font-size:14px ">{{invoice.invoice_no}}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 text-left" style="color: black;font-size:14px ">Customer Name:</div>
+                                        <div class="col-md-5 text-right" style="color: black;font-size:14px ">{{invoice.customer.customerName}}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 text-left" style="color: black;font-size:14px ">Invoice Date :</div>
+                                        <div class="col-md-5 text-right" style="color: black;font-size:14px ">{{invoice.inv_date | date:'d-m-Y'}}</div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 text-left" style="color: black;font-size:14px ">Due Date :</div>
+                                        <div class="col-md-5 text-right" style="color: black;font-size:14px ">{{invoice.due_date | date:'d-m-Y'}}</div>
+                                    </div>
+
+                                </div>
+                                </center>
+                              
+                                <div><br>
+                                   <center>
+                                    <div class="equal-length-container" style="color: black; font-size:14px">
+                                                 
+                            <table>
+                                <thead style="background-color:transparent; font-weight: bold ;">
+                                    <tr>
+                                        <th style="color: #000; padding-right: 10px;">Product <hr></th>
+                                        <th style="color: #000; padding-right: 10px;">HSN <hr></th>
+                                        <th style="color: #000; padding-right: 10px;">Qty <hr></th>
+                                        <th style="color: #000; padding-right: 10px;">Price <hr></th>
+                                        <th style="color: #000; padding-right: 10px;">Tax <hr></th>
+                                        <th style="color: #000; padding-right: 10px;">Discont <hr></th>
+                                        <th style="color: #000; padding-right: 10px;">Total <hr></th>
+
+                                    </tr>
+                                </thead>
+
+                            </div>
+                                    
+                            </div>
+                        </div>
+                        <div class="equal-length-item">
+                          
+                              <tbody>
+                                {% for pordr in invoiceitem %}
+                                <tr>
+                                    <center>
+                                  <td style="color: #000; padding-right: 15px;">{{ pordr.product }}</td>
+                                  <td style="color: #000; padding-right: 25px;">{{ pordr.hsn }}</td>
+                                  <td style="color: #000; padding-right: 25px;">{{ pordr.quantity }}</td>
+                                  <td style="color: #000; padding-right: 15px;">{{ pordr.rate }}</td>
+                                  <td style="color: #000; padding-right: 15px;">{{ pordr.tax }}</td>
+                                  <td style="color: #000; padding-right: 10px;">{{ pordr.discount }}</td>
+                                  <td style="color: #000;  padding-right: 10px;">{{ pordr.total }}</td>
+                                    </center>
+                                </tr>
+                                {% endfor %}
+                              </tbody>
+                           
+                          
+                            </table>
+                      
+                        </center>
+    
+                        </div>
+                                <div><br>
+                                    <center>
+                                    <div class="col-sm-11 col-md-11 col-lg-11">
+                                        <table class="mt-2" style="margin-right: 70%;margin-top: 3%;font-size:14px">
+                                            <tr>
+                                                <td class=" text-dark" style="font-weight: bold;">Sub-Total:</td>
+                                                
+                                                <td class="text-right text-dark" style="text-align: end;">{{ invoice.sub_total|floatformat:1}}</td>
+                                            </tr>
+                                            {% if invoice.cgst != 0 %}
+                                            <tr>
+                                                <td class="text-right text-dark">CGST:</td>
+                                                <td class="text-right text-dark" style="text-align: end;">{{ invoice.cgst|floatformat:1}}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if invoice.sgst != 0 %}
+                                            <tr>
+                                                <td class="text-right text-dark">SGST:</td>
+                                                <td class="text-right text-dark" style="text-align: end;">{{ invoice.sgst|floatformat:1}}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if invoice.igst != 0 %}
+                                            <tr>
+                                                <td class="text-right text-dark">IGST:</td>
+                                                <td class="text-right text-dark" style="text-align: end;">{{ invoice.igst|floatformat:1}}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if invoice.shipping_charge != 0 %}
+                                            <tr>
+                                                <td class="text-right text-dark">Shipping Charge:</td>
+                                                <td class="text-right text-dark" style="text-align: end;">{{ invoice.shipping_charge|floatformat:1}}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if invoice.adjustment != 0 %}
+                                            <tr>
+                                                <td class="text-right text-dark">Adjustment:</td>
+                                                <td class="text-end text-dark" style="text-align: end;">{{ invoice.adjustment|floatformat:1}}</td>
+                                            </tr>
+                                            {% endif %}
+                                            <tr>
+                        
+                                                <td class="text-right " style="font-weight: bold; color: #000000;">Total:</td>
+                                                <!-- <td class="text-right text-dark "></td>
+                                                <td class="text-right text-dark"></td>
+                                                <td class="text-right text-dark"></td> -->
+                                                <td class="text-right " style="font-weight: bold;text-align: end;color: #000000;">{{ invoice.grandtotal|floatformat:1}}</td>
+                                            </tr>
+                        
+                                        </table>
+                                    </center>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
 
 
 
-            <div style="position:relative;"> 
+       <div style="position:relative;"> 
+     
                 
 
                 
@@ -646,7 +956,7 @@ body {
                         <div class="row pt-0 m-0 text-center"  >
                             <div class="col-4 "></div>
                             <div class="col-4 " >
-                                <h4 class="text-uppercase text-dark" > recurring expenses</h4>
+                                <h4 class="text-uppercase text-dark" >CREDIT NOTES</h4>
                             </div>
                             <div class="col-4 "></div>
                         </div>
@@ -666,14 +976,14 @@ body {
                                 <section class="d-flex justify-content-between">
                                     <div class="top-right">
                                         <div class="graphic-path text-center">
-                                            {% comment %} <h5 class="text-capitalize"  >{{expense.profile_name}}</h5> {% endcomment %}
-                                            <p class="text-capitalize" id="pid" hidden>{{expense.id}}</p>
+                                            {% comment %} <h5 class="text-capitalize"  >{{c.item_name}}</h5> {% endcomment %}
+                                            <p class="text-capitalize" id="pid" hidden>{{c.credit_note}}</p>
 
                                         </div>
                                         <div class="position-relative">
-                                            <p style="color:black;">Start Date : &nbsp <span style="color: black;">{{expense.start_date|date:'d-m-Y'}}</span></p>
-                                            {% comment %} <p style="color:black;">Due Date : &nbsp <span style="color: black;">{{expense.ends_on|date:'d-m-Y'|default:"Never expire"}}</span></p> {% endcomment %}
-                                            {% comment %} <p>Term : &nbsp <span style="color: black;">NET {{expense.payment_terms}}</span></p>  {% endcomment %}
+                                            <p style="color:black;">Creditnote No : &nbsp<span style="color: black;">{{creditnote.credit_note}}</span></p>
+                                            <p style="color:black;">Invoice No: &nbsp <span style="color: black;">{{creditnote.invoice_number}}</span></p> 
+                                            <p>Term : &nbsp <span style="color: black;">NET {{creditnote.payment_terms}}</span></p>  
                                         </div>
                                     </div>
                                 </section>
@@ -688,21 +998,15 @@ body {
 
                                     <div class="col-1 "></div>
                                     <div class="col-5">
-                                        <p style=" font-size: 18px; font-style: italic; font-weight: 700;color:black;">Bill To,</p>
-                                        <h6  class="mx-3 text-capitalize" style="color: black; ">{{ vendor.salutation}} {{vendor.first_name}} {{ vendor.last_name}}</h6>
-                                        
-                                        {% if expense.gst_treatment != 'unregistered Business' %}
-                                        <p class=" col-6 mx-1 p-2" style="margin-left: -14px;font-size:12px;font-style:Arial;margin-top:1rem;color:black;">
-                                            {{vendor.gst_number}}</p>
-                                        {% endif %}
-                                        <p  style="margin-left: 15px;margin-top:1.5rem;color:black;">
-                                            {{vendor.vendor_email}}<br>
-                                            {{vendor.bstreet}}<br>
-                                            {{vendor.bcity}}<br>
-                                            {{vendor.bstate}}<br> 
-                                            {{vendor.bpin}}<br> 
-                                        </p>
-                                    </div>
+                                <p style=" font-size: 18px;  font-weight: 700; color: black; ">Bill To,</p>
+                                <h6  class="mx-3 text-capitalize" style="color: black; ">{{ creditnote.customer.customerName }} </h6>
+                                <p class=" col-6  " style="margin-left: -14px; color: black;">
+                                    {{ creditnote.customer.city }}
+                                    {{ creditnote.customer.state }},
+                                    {{ creditnote.customer.zipcode }}
+                                </p>
+
+                            </div>
                                     <div class="col-1"></div>
                                 
 
@@ -732,355 +1036,98 @@ body {
                         </section>
 
                         <section class="product-area mt-0">
-                            <table class="table ">
-                                <thead style="background-color:burlywood; color: black;">
-                                    <tr>
-                                        <td>#</td>
-                                        <td>Start Date</td>
-                                        <td>Profile Name</td>
+                    <table class="table ">
+                        <thead style="background-color:burlywood; color: black;">
+                            <tr>
+                                
+                                <td>item Name</td>
+                                <td>HSN</td>
+                                <td>Quantity</td>
+                                <td>Rate</td>
+                                <td>Tax</td>
+                                <td>Discount</td>
+                                <td>Amount</td>
+                            </tr>
+                        </thead>
+                        <tbody style=":hover{color: #ddd; background-color: transparent;}">
+                            {% for credititem in credititems %}
+                            <tr>
+                                
+                                <td>{{ credititem.item_name.Name }}</td>
+                                <td>{{ credititem.hsn }}</td>
+                                <td>{{ credititem.quantity }}</td>
+                                <td>{{ credititem.rate }}</td>
+                                {% if creditnote.customer.placeofsupply == "[KL] Kerala" %}
+                                <td>{{credititem.tax}}% GST</td>
+                                {% else %}
+                                <td>{{credititem.tax}}% IGST</td>
+                                {% endif %}
+                                <td>{{ credititem.discount }}</td>
+                                <td>{{ credititem.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+                <section class="balance-info p-5">
+                    <div class="row">
+                        <div class="col-8 btn-group">
+                            <!-- <p class="m-0 font-weight-bold" style="color: black;"> Note: </p>
+                            <p class="py-0 px-5" style="color: black;">{{recur_bill.note}}</p> -->
+                        </div>
+                        <div class="col-4">
+                            <table class="table border-0 ">
+                                <tr class="table-hover-custom">
+                                    <td style="font-weight:bold">Sub Total :</td>
+                                    <td style="font-weight:bold">{{ creditnote.subtotal|floatformat:2 }}</td>
+                                </tr>
+                                 
+                                {% if creditnote.igst == 0 %}
+                                <tr class="table-hover-custom">
+                                    <td style="font-weight:bold">CGST :</td>
+                                    <td style="font-weight:bold">{{ creditnote.cgst|floatformat:2 }}</td>
+                                </tr>
+                                <tr class="table-hover-custom">
+                                    <td style="font-weight:bold">SGST:</td>
+                                    <td style="font-weight:bold">{{ creditnote.sgst|floatformat:2 }}</td>
+                                </tr>
+                               {% else %}
+                                <tr class="table-hover-custom">
+                                    <td style="font-weight:bold">IGST :</td>
+                                    <td style="font-weight:bold">{{ creditnote.igst|floatformat:2 }}</td>
+                                </tr>
+                               {% endif %}
+                      
+                               <tr class="table-hover-custom">
 
-                                        {% comment %} <td>Ends Date</td> {% endcomment %}
-                                    
-                                        {% comment %} <td>Tax</td> {% endcomment %}
-                                        <td>Amount</td>
-                                    </tr>
-                                </thead>
-                                <tbody style="color:black;">
+                                    <td style="font-weight:bold">Shipping Charge:</td>
+                                    <td style="font-weight:bold">{{ creditnote.shipping_charge|floatformat:2 }}</td>
+                                </tr>
 
-                                    {% comment %} {% for b in expense %} {% endcomment %}
-                                    <tr >
-                                        <td>{{ forloop.counter }}</td>
-                                        
-                                        <td>{{expense.start_date}} </td>
-                                        <td>{{expense.profile_name}}</td>
-                                    
-                                        <td>{{expense.amount}}</td>
-                                    </tr>
-                                    {% comment %} {% endfor %} {% endcomment %}
+                                <tr class="table-hover-custom">
 
-                                </tbody>
+                                    <td style="font-weight:bold">Adjustment:</td>
+                                    <td style="font-weight:bold">{{ creditnote.adjustment|floatformat:2 }}</td>
+                                </tr>
+                                <tr class="table-hover-custom">
+                                    <tfoot>
+                                        <td style="font-weight:bold">Total:</td>
+                                        <td style="font-weight:bold;">{{ creditnote.total|floatformat:2 }}</td>
+                                    </tfoot>
+                                </tr>
+                               
                             </table>
-                        
-                        </section>
-                    
+                        </div>
+                    </div>
                     </div>
                       
                     
                 </div>
-              
-                
-                
-                <div class="form formprint2" id="form2" style="margin-top:10px;">
-                    
-                        <div class="card" >
-                            <div id="printdiv3">
-                                <div class="card-header text-dark "style="background-image: linear-gradient(#1b83e8, black);">
-                                    <h1 class="" style="text-align:center;background-image: linear-gradient(#1b83e8, black);color:white;">RECURRING EXPENSES</h1>
-                                </div>
-                                <div style="text-align: center;">
-                                    <p style="color:black;">Start Date: <span style="color:black;">{{expense.start_date|date:'d-m-Y'}}</span></p>
-                                </div>
-                            
-                                <div class="row">
-                                    <div class="col-sm-6" style="margin-left: 450px;">
-                                        <h6 class="mb-3 text-uppercase" style="font-size:15px;color:darkblue"><b>{{company.company_name}}</b></h6>
-                                        <div><strong>{{company.address}}</strong></div>
-                                        <div>{{company.city}}</div>
-                                        <div>{{company.state}}</div>
-                                        <div>{{company.pincode}}</div>
-                                    </div>
-                                </div>
-                                <div class="row" style="margin-top:15px; color:black;">
-                                    <div class="col-sm-4" style="text-align: left;margin-left:30px;">
-                                        <p class="text-capitalize" id="pid" hidden>{{expense.id}}</p>
-                                        <div><h6 class="mb-3 text-dark font-italic">Bill To;</b></div>
-                                        <div><strong>{{vendor.salutation}}{{vendor.first_name}} {{vendor.last_name}}</strong></div>
-                                        {% if expense.gst_treatment != 'unregistered Business' %}
-                                        <div>{{vendor.gst_number}}</div>
-                                        {% endif %}
-                                        <div>{{vendor.vendor_email}}</div>
-                                        <div>{{vendor.bstreet}}</div>
-                                        <div>{{vendor.bcity}}</div>
-                                        <div>{{vendor.bstate}}</div>
-                                        <div>{{vendor.bpin}}</div>
-                                    </div>
-                                
-                                    <div class="col-sm-3 float-end" >
-                                        <h6 class="mb-2 text-dark font-italic">Deliver To;</h6>
-                                        <div><strong>{{customer.customerName}}</strong></div>
-                                        {% if customer.GSTIN != None %}
-                                        <div>{{customer.GSTIN}}</div>
-                                        {% endif %}
-                                        <div>{{customer.customerEmail}}</div>
-                                        <div>{{customer.Address1}}</div>
-                                        <div>{{customer.city}}</div>
-                                        <div>{{customer.state}}</div>
-                                        <div>{{customer.zipcode}}</div>
-                                    </div>
-                                </div>
-                                <section class="product-area mt-2">
-                                
-                                    <div class="table-responsive-sm">
-                                        <table class="table table-striped table-active ">
-                                            <thead class="table-dark">
-                                                <tr>
-                                                    <th class="center">#</th>
-                                                    <th>Start Date</th>
-                                                    <th>Profile Name</th>
-                                                    <th class="right">Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody style="background-color: #999999;">
-                                                <tr>
-                                                    <td class="center text-dark" style="color:000;">{{ forloop.counter }}</td>
-                                                    <td class="left strong text-dark" style="color:000;">{{expense.start_date}}</td>
-                                                    <td class="left text-dark" style="color:000;">{{expense.profile_name}}</td>
-                                                    <td class="right text-dark" style="color:000;"d>{{expense.amount}}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </section>
-                            </div>
-                        </div>
-                   
-                </div>
-
-              
-                
-                
-               
-
-                <!-- overview -->
-                <div id="Overview" class="  tabcontent  p-5 m-3"  style="overflow-x: hidden; border-top: #ccc double 2px; background-color: burlywood ;border-radius: 1px;display:block;">
-
-                    <h3 class="mb-0 mx-5 text-muted" style="color: rgb(161, 195, 226);">{{ company.company_name }}</h3>
-                    <center>
-                        <h2 class="mb-4" style=" color: #434141;">RECURRING EXPENSE</h2>
-                    </center>
-
-                    <div class="row g-0">
-                        <div class="col-md-7">
-                            <div class="p-5">
-                                <p class="text-grey">Bill Amount</p>
-                                <div class="d-flex justify-content-between align-items-center mb-5">
-                                    <b>
-                                        <span style=" color: #434141;">
-                                            ₹ <input type="text" value="{{ expense.amount|floatformat:2 }}"
-                                                class="amnt text-dark" style="font-size: 18px; color: #434141;">
-                                        </span>
-                                    </b>
-                                </div>
-                                <hr class="my-4">
-
-
-                                <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                    <div class="col-md-6 mt-3">
-                                        <h6 class="mb-0 text-grey ">Profile Name :</h6>
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <p class="mb-0 " style="font-size: 18px; color: #434141;">{{ expense.profile_name }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                    <div class="col-md-6 mt-3">
-                                        <h6 class="mb-0 text-grey " >Repeat Every :</h6>
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                    
-                                        <p class="mb-0" style="font-size: 18px; color: #434141;">{{repeat.Terms}}</p>
-                                    
-                                    </div>
-                                </div>
-                                <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                    <div class="col-md-6 mt-3">
-                                        <h6 class="mb-0 text-grey">Start Date :</h6>
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <p class="mb-0" style="font-size: 18px; color: #434141;">{{ expense.start_date |date:'d-m-Y' }}</p>
-                                    </div>
-
-                                </div>
-
-                                
-                             
-                                
-
-                                <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                    <div class="col-md-6 mt-3">
-                                        <h6 class="mb-0 text-grey">Tax :</h6>
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <span style="font-size: 18px; color: #434141;">{{ gst_or_igst }} </span>
-                                        {% comment %} {% for bi in tax %} {% endcomment %}
-                                            <input type="text" value="{{expense.tax }}%" style="font-size: 17px; color: #434141; width: 78px;margin-left:-10px;" class="tax 1 tx">
-                                        <span class="text-muted"></span><br><span ></span>
-                                        {% comment %} {% endfor %} {% endcomment %}
-                                    </div>
-                                </div>
-                                {% if expense.gst and vendor.gst_number and expense.gst != 'None' and vendor.gst_number != 'None' %}
-                                <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                    <div class="col-md-6 mt-3">
-                                        <h6 class="mb-0 text-grey">Vendor GST Number :</h6>
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <p class="mb-0 text-capitalize" style="font-size: 16px; color: #434141;">{{ expense.gst }}</p>
-                                    </div>
-                                </div>
-                            {% endif %}
-                                <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                    <div class="col-md-6 mt-3">
-                                        <h6 class="mb-0 text-grey">Vendor Source of Supply :</h6>
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ expense.vendor_destination }}</p>
-                                    </div>
-
-                                </div>
-                                <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                    <div class="col-md-6 mt-3">
-                                        <h6 class="mb-0 text-grey">Note :</h6>
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{expense.notes }}</p>
-                                    </div>
-
-                                </div>
-
-                                <div class="row mb-4 d-flex justify-content-between align-items-center">
-                                    <div class="col-md-6 mt-3">
-                                        <h6 class="mb-0 text-grey">Customer Source of Supply :</h6>
-                                    </div>
-                                    <div class="col-md-6 mt-3">
-                                        <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ expense.cust_placeofsupply }}</p>
-                                    </div>
-
-                                </div>
-                                
-                                <!-- <hr class="my-4"> -->
-                            </div>
-                        </div>
-                        <div class="col-md-5  " style="background-color:#8b3131; border-radius: 5px;" >
-                            <div class="p-5">
-                                <div class="d-block justify-content-between mb-5">
-                                    <div class="col-md-12 mt-3">
-                                        <h5 style="color: #ccc;">Vendor :</h5>
-                                    </div><br>
-                                    <div class="col-md-12 my-0 mx-5">
-                                        <h6 class="text-capitalize" style="color: azure;">{{ vendor.first_name}}{{ vendor.last_name}}</h6>
-                                    </div>
-                                </div>
-                                <div class="d-block justify-content-between mb-5">
-                                    <div class="col-md-12 mt-3">
-                                        <h5 style="color: #ccc;">Customer :</h5>
-                                    </div><br>
-                                    <div class="col-md-12 my-0 mx-5">
-                                        <h6 class="text-capitalize " style="color: azure;">{{ customer.customerName}}
-                                        </h6>
-                                    </div>
-                                </div>
-
-                                <hr class="my-6">
-
-                                <div class="d-flex justify-content-between mb-5">
-                                    <div class="col-md-7 mt-2">
-                                        <h6 style="color: #ccc;">Customer GST Treatment:</h6>
-                                    </div>
-                                    <div class="col-md-5 mt-2">
-                                        <div style="font-size: 14px; color: azure;">
-                                            {{ expense.cust_gsttreatment }}
-                                        </div>
-                                    </div>
-                                </div>
-                                {% if expense.cust_gsttreatment != "Unregistered Business-not Registered under GST" %}
-                                <div class="justify-content-between mb-3 d-none" id="igst">
-                                    <div class="col-md-4 mt-3">
-                                        <h6 style="color: #ccc;">Customer GST Number :</h5><br>
-                                    </div>
-                                    <div class="col-md-8 mt-4 mx-3">
-                                      
-                                        <input type="text" value="{{ customer.GSTIN }} " class="amnt"
-                                            style="font-size: 16px; color: azure;margin-top:-3.6rem" readonly>
-                                           
-                                    
-                                    </div>
-                                </div>
-                                {% endif %}
-                                
-
-                                <div class="row justify-content-between mb-5">
-                                    <div class="col-md-4 mt-4">
-                                        <h6 style="color: #ccc;">Paid Through:</h6>
-                                    </div>
-                                    <div class="col-md-8 mt-3">
-                                        <input type="text" value="{{ expense.paidthrough }}" class="amnt" style="font-size: 16px; color: azure;" readonly>
-                                    </div>
-                                </div>
-                                
-                                {% if expense.paidthrough == 'Cash' %}
-                                    <div class="d-flex justify-content-between mb-5">
-                                        <div class="col-md-8 mt-3">
-                                            <!-- Display nothing extra for Cash payments -->
-                                        </div>
-                                        <div class="col-md-4 mt-3 mx-3">
-                                            <!-- Display nothing extra for Cash payments -->
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    <!-- Display additional information based on payment method -->
-                                    <div class="d-flex justify-content-between mb-5">
-                                        <div class="col-md-8 mt-3">
-                                            {% if expense.paidthrough == 'UPI' %}
-                                                <h6 style="color: #ccc;">UPI ID :</h5><br>
-                                            {% elif expense.paidthrough == 'Cheque' %}
-                                                <h6 style="color: #ccc;">Cheque number :</h5><br>
-                                            {% else %}
-                                                <h6 style="color: #ccc;">Bank Account:</h5><br>
-                                            {% endif %}
-                                        </div>
-                                        <div class="col-md-4 mt-3 mx-3">
-                                            {% if expense.paidthrough == 'UPI' %}
-                                                <input type="text" value="{{ expense.upi_number }}" class="amnt" style="font-size: 16px; color: azure;margin-left:-2.8rem;margin-top:-2.5rem" readonly>
-                                            {% elif expense.paidthrough == 'Cheque' %}
-                                                <input type="text" value="{{ expense.cheque_id }}" class="amnt" style="font-size: 16px; color: azure;margin-left:-2.8rem;margin-top:-2.5rem" readonly>
-                                            {% else %}
-                                                <input type="text" value="{{ expense.bank_account }}" class="amnt" style="font-size: 16px; color: azure;margin-left:-2.8rem;margin-top:-2.5rem" readonly>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                {% endif %}
-                                
-                               
-                                <div class="d-flex justify-content-between mb-5">
-                               <div class="col-md-6 mt-3">
-                                        <h6 style="color: #ccc;margin-top:3rem">Expense Type:</h5><br>
-                                    </div>
-                                    <div class="col-md-6 mt-3 mx-3">
-                                        <input type="text" value="{{ expense.expense_type }} "
-                                            class="amnt " style="font-size: 16px; color: azure;margin-top:2.8rem" readonly>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    
-                    
-                </div>
-                
-               
-                    <div id="formButton">
-                        <button class="btn btn-warning tablinks" id="formButton1" style="margin-top:50px; margin-left:350px;" onclick="toggleForm('Template')">1</button>
-                        <button class="btn btn-warning tablinks" id="formButton2" style="margin-top:50px; margin-left:20px;" onclick="toggleForm(1)">2</button>
-                        <button class="btn btn-warning tablinks" id="formButton3" style="margin-top:50px; margin-left:20px;" onclick="toggleForm(2)">3</button>
-                     
-                    </div>
-                    <div class="form formprint1" id="form1" >
+                <div class="form formprint1" id="form1" >
                         <div id="printdiv2">
                             <div class="card" >
                                 <div class="card-header">
-                                    <h1 style="text-align:center;">RECURRING EXPENSES</h1>
+                                    <h1 style="text-align:center;">CREDITNOTES</h1>
                                 </div>
                                 <div  style="margin-left: 300px;">
                                     <p style=""><b>Start Date : </b>&nbsp <span style=""><b>{{expense.start_date|date:'d-m-Y'}}</b></span></p>
@@ -1143,27 +1190,90 @@ body {
                                         <table class="table   table-striped table-active table-secondary">
                                                 <thead>
                                                     <tr>
-                                                        <th class="center">#</th>
-                                                        <th>Start Date</th>
-                                                        <th>Profile Name</th>
+                                                        <td>item Name</td>
+                                                        <td>HSN</td>
+                                                        <td>Quantity</td>
+                                                        <td>Rate</td>
+                                                        <td>Tax</td>
+                                                        <td>Discount</td>
+                                                        <td>Amount</td>
                                                         
-                                                        <th class="right">Amount</th>
+                                                       
                                                         
                                                     </tr>
                                                 </thead>
                                                 <tbody class="text-dark">
+                                                    {% for credititem in credititems %}
                                                     <tr >
-                                                        <td class="center"  style="color:000;">{{ forloop.counter }}</td>
-                                                        <td class="left strong" style="color:000">{{expense.start_date}}</td>
-                                                        <td class="left"  style="color:000"> {{expense.profile_name}}</td>
-                                                        
-                                                        <td class="right"  style="color:000;">{{expense.amount}}</td>
+                                                           
+                                                        <td>{{ credititem.item_name.Name }}</td>
+                                                        <td>{{ credititem.hsn }}</td>
+                                                        <td>{{ credititem.quantity }}</td>
+                                                        <td>{{ credititem.rate }}</td>
+                                                        {% if creditnote.customer.placeofsupply == "[KL] Kerala" %}
+                                                        <td>{{credititem.tax}}% GST</td>
+                                                        {% else %}
+                                                        <td>{{credititem.tax}}% IGST</td>
+                                                        {% endif %}
+                                                        <td>{{ credititem.discount }}</td>
+                                                        <td>{{ credititem.amount }}</td>
                                                             
                                                     </tr>
-                                            
+                                                   {% endfor %}
                                                 </tbody>
                                         </table>
                                 </div>
+                                <section class="balance-info p-5">
+                    <div class="row">
+                        <div class="col-8 btn-group">
+                            <!-- <p class="m-0 font-weight-bold" style="color: black;"> Note: </p>
+                            <p class="py-0 px-5" style="color: black;">{{recur_bill.note}}</p> -->
+                        </div>
+                        <div class="col-4">
+                            <table class="table border-0 ">
+                                <tr class="table-hover-custom" >
+                                    <td style="color: antiquewhite; font-weight:bold" >Sub Total :</td>
+                                    <td style="color: antiquewhite; font-weight:bold">{{ creditnote.subtotal|floatformat:2 }}</td>
+                                </tr>
+                                 
+                                {% if creditnote.igst == 0 %}
+                                <tr class="table-hover-custom">
+                                    <td style="color: antiquewhite; font-weight:bold" >CGST :</td>
+                                    <td style="color: antiquewhite; font-weight:bold">{{ creditnote.cgst|floatformat:2 }}</td>
+                                </tr>
+                                <tr class="table-hover-custom">
+                                    <td style="color: antiquewhite; font-weight:bold">SGST:</td>
+                                    <td style="color: antiquewhite; font-weight:bold">{{ creditnote.sgst|floatformat:2 }}</td>
+                                </tr>
+                               {% else %}
+                                <tr class="table-hover-custom">
+                                    <td style=" color: antiquewhite; font-weight:bold">IGST :</td>
+                                    <td style="color: antiquewhite; font-weight:bold">{{ creditnote.igst|floatformat:2 }}</td>
+                                </tr>
+                               {% endif %}
+                      
+                               <tr class="table-hover-custom">
+
+                                    <td style="color: antiquewhite; font-weight:bold">Shipping Charge:</td>
+                                    <td style="color: antiquewhite; font-weight:bold">{{ creditnote.shipping_charge|floatformat:2 }}</td>
+                                </tr>
+
+                                <tr class="table-hover-custom">
+
+                                    <td style="color: antiquewhite; font-weight:bold">Adjustment:</td>
+                                    <td style="color: antiquewhite; font-weight:bold">{{ creditnote.adjustment|floatformat:2 }}</td>
+                                </tr>
+                                <tr class="table-hover-custom">
+                                    <tfoot>
+                                        <td style="color: antiquewhite; font-weight:bold">Total:</td>
+                                        <td style="color: antiquewhite; font-weight:bold;">{{ creditnote.total|floatformat:2 }}</td>
+                                    </tfoot>
+                                </tr>
+                               
+                            </table>
+                        </div>
+                    </div>
+                </section> 
                             </div>
                         </div>
                     </div>
@@ -1197,596 +1307,873 @@ body {
 
         
     
-</div>
+                </div>
 
-    <div id="slipdiv" style="background-color: #243e54; border-radius: 2vh; display: none; ">
-        <div class="p-5"  >
-            <div class="my-5 page" size="A4">
-                <div class="row" style="margin-top: 20%;" id="printslip">
-                    <div class="col-md-3"></div>
-                    <div class="col-md-6 ml-3">
-                        <div class="card bg-white" style="border: 1px dotted black;height:500px;">
-                            <div class="mt-2" style="text-align: center;">
-                                <div class="text-center" style="font-size: 6vh; color: black;">
-                                    <b>{{company.company_name}} </b>
-                                </div>
-                                <span style="font-size:small; color: black;"> {{ company.address }} <br>
-                                    {{company.city}},
-                                    {{company.state}}
-                                    {{company.pincode}} <br>
-                                    {{ company.phone }} <br>{{ company.cemail }} 
-                                </span>
+                <div id="formButton">
+
+
+                                            
+                    <button class="btn btn-warning tablinks" id="formButton1" style="margin-top:50px; margin-left:280px;" onclick="toggleForm('Template')">1</button>
+                    <button class="btn btn-warning tablinks" id="formButton2" style="margin-top:50px; margin-left:50px;" onclick="toggleForm(1)">2</button>
+                    <button class="btn btn-warning tablinks" id="formButton3" style="margin-top:50px; margin-left:50px;" onclick="toggleForm(2)">3</button>
+
+                </div>
+              
+            <div class="form formprint2" id="form2" style="margin-top:10px;">
+                    
+                    <div class="card" >
+                        <div id="printdiv3">
+                            <div class="card-header text-dark "style="background-image: linear-gradient(#1b83e8, black);">
+                                <h1 class="" style="text-align:center;background-image: linear-gradient(#1b83e8, black);color:white;">CREDITNOTES</h1>
                             </div>
-                            <div class="ml-4 mt-3" style="color: black;margin-left:50px;">
-                                <div class="row">
-                                    <div class="col-md-6 text-left" style="display: inline-block; width: 50%;">Refrence No:</div>
-                                    <div class="col-md-5 text-right" style="display: inline-block; width: 50%;">{{expense.refrenceid}}</div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 text-left" style="display: inline-block; width: 50%;">Customer Name:</div>
-                                    <div class="col-md-5 text-right" style="display: inline-block; width: 50%;">{{ expense.customer.customerName }}</div>
-                                </div>
-                                {% comment %} <div class="row">
-                                    <div class="col-md-6 text-left" style="display: inline-block; width: 50%;">Start date: :</div>
-                                    <div class="col-md-5 text-right" style="display: inline-block; width: 50%;">{{expense.start_date | date:'d-m-Y'}}</div>
-                                </div> {% endcomment %}
-                              
+                            <div style="text-align: center;">
+                                <p style="color:black;">Date <span style="color:black;">{{ creditnote.creditnote_date|date:'d-m-Y' }}</span></p>
+                                <p style="color:black;">Creditnote No <span style="color:black;">{{ creditnote.credit_note_date }}</span></p>
                             </div>
-                            <div><br>
-                                <div class="equal-length-container" style="color: black; font-weight: bold;margin-top:10px;display: flex;align-items: center;  justify-content: space-between; height: 100%;  margin-left: 2vh;margin-right: 2vh;  ">
-                                     
-                                    <div class="equal-length-item ml-2"  style=" text-align:center;flex: 1;">
-                                        Start Date
-                                         <hr style="border-bottom: 1px solid black; margin-top:1vh; width:85%;"> 
-                                    </div>
-                                    <div class="equal-length-item ml-2"  style=" text-align:center;flex: 1;">
-                                        Profile Name
-                                         <hr style="border-bottom: 1px solid black; margin-top:1vh; width:85%;"> 
-                                    </div>
-                                    <div class="equal-length-item"  style=" text-align: center; flex: 1;">
-                                        Amount
-                                        <hr style="border-bottom: 1px solid black; margin-top:1vh; width:85%"> 
-                                    </div>
-                                
+                        
+                            <div class="row">
+                                <div class="col-sm-6" style="margin-left: 450px;">
+                                    <h6 class="mb-3 text-uppercase" style="font-size:15px;color:darkblue"><b>{{company.company_name}}</b></h6>
+                                    <div><strong>{{company.address}}</strong></div>
+                                    <div>{{company.city}}</div>
+                                    <div>{{company.state}}</div>
+                                    <div>{{company.pincode}}</div>
                                 </div>
                             </div>
-                            <div>
-                              
-                                <div class="equal-length-container text-uppercase" style="color: black; font-size: small; word-wrap: break-word; margin-bottom:4vh;display: flex;align-items: center;  justify-content: space-between; height: 100%;  margin-left: 2vh;margin-right: 2vh;  ">
-                                    {% comment %} <div class="equal-length-item"  style="text-align: center; margin-left: 2px;">#
-                                    </div> {% endcomment %}
-                                    <div class="equal-length-item" style="text-align: center;flex: 1;">
-                                        {{expense.start_date | date:'d-m-Y'}}
-                                    </div>
-                                    <div class="equal-length-item" style="text-align: center;flex: 1;">
-                                        {{expense.profile_name}}
-                                    </div>
-                                    <div class="equal-length-item" style="text-align: center; flex: 1;">
-                                        {{expense.amount}}
-                                    </div>
-                                   
+                            <div class="row" style="margin-top:15px; color:black;">
+                                <div class="col-sm-4" style="text-align: left;margin-left:30px;">
+                                    <p class="text-capitalize" id="pid" hidden>{{expense.id}}</p>
+                                    <div><h6 class="mb-3 text-dark font-italic">Bill To;</b></div>
+                                    <div><strong>{{creditnote.customer.customerName}}</strong></div>
+                                    {% if expense.gst_treatment != 'unregistered Business' %}
+                                    <div>{{vendor.gst_number}}</div>
+                                    {% endif %}
+                                    <div>{{ creditnote.customer.customerEmail }}</div>
+                                    <div>{{customer.Address1}}</div>
+                                    <div>{{customer.city}}</div>
+                                    <div>{{customer.state}}</div>
+                                    <div>{{customer.zipcode}}</div>
                                 </div>
                             
+                                <div class="col-sm-3 float-end" >
+                                    <h6 class="mb-2 text-dark font-italic">Deliver To;</h6>
+                                    <div><strong>{{customer.customerName}}</strong></div>
+                                    {% if customer.GSTIN != None %}
+                                    <div>{{customer.GSTIN}}</div>
+                                    {% endif %}
+                                    <div>{{customer.customerEmail}}</div>
+                                    <div>{{customer.Address1}}</div>
+                                    <div>{{customer.city}}</div>
+                                    <div>{{customer.state}}</div>
+                                    <div>{{customer.zipcode}}</div>
+                                </div>
                             </div>
+                            <section class="product-area mt-2">
+                            
+                                <div class="table-responsive-sm">
+                                    <table class="table table-striped table-active ">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <td style="color: wheat;">item Name</td>
+                                                <td style="color: wheat;">HSN</td>
+                                                <td style="color: wheat;">Quantity</td>
+                                                <td style="color: wheat;">Rate</td>
+                                                <td style="color: wheat;">Tax</td>
+                                                <td style="color: wheat;">Discount</td>
+                                                <td style="color: wheat;">Amount</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="background-color: #999999;">
+                                            {% for credititem in credititems %}
+                                            <tr>
+                                               
+                                                <td>{{ credititem.item_name.Name }}</td>
+                                                <td>{{ credititem.hsn }}</td>
+                                                <td>{{ credititem.quantity }}</td>
+                                                <td>{{ credititem.rate }}</td>
+                                                {% if creditnote.customer.placeofsupply == "[KL] Kerala" %}
+                                                <td>{{credititem.tax}}% GST</td>
+                                                {% else %}
+                                                <td>{{credititem.tax}}% IGST</td>
+                                                {% endif %}
+                                                <td>{{ credititem.discount }}</td>
+                                                <td>{{ credititem.amount }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                            </section>
+                            <section class="balance-info p-5">
+                <div class="row">
+                    <div class="col-8 btn-group">
+                        <!-- <p class="m-0 font-weight-bold" style="color: black;"> Note: </p>
+                        <p class="py-0 px-5" style="color: black;">{{recur_bill.note}}</p> -->
+                    </div>
+                    <div class="col-4">
+                        <table class="table border-0 ">
+                            <tr class="table-hover-custom">
+                                <td style="font-weight:bold">Sub Total :</td>
+                                <td style="font-weight:bold">{{ creditnote.subtotal|floatformat:2 }}</td>
+                            </tr>
+                             
+                            {% if creditnote.igst == 0 %}
+                            <tr class="table-hover-custom">
+                                <td style="font-weight:bold">CGST :</td>
+                                <td style="font-weight:bold">{{ creditnote.cgst|floatformat:2 }}</td>
+                            </tr>
+                            <tr class="table-hover-custom">
+                                <td style="font-weight:bold">SGST:</td>
+                                <td style="font-weight:bold">{{ creditnote.sgst|floatformat:2 }}</td>
+                            </tr>
+                           {% else %}
+                            <tr class="table-hover-custom">
+                                <td style="font-weight:bold">IGST :</td>
+                                <td style="font-weight:bold">{{ creditnote.igst|floatformat:2 }}</td>
+                            </tr>
+                           {% endif %}
+                  
+                           <tr class="table-hover-custom">
 
+                                <td style="font-weight:bold">Shipping Charge:</td>
+                                <td style="font-weight:bold">{{ creditnote.shipping_charge|floatformat:2 }}</td>
+                            </tr>
+
+                            <tr class="table-hover-custom">
+
+                                <td style="font-weight:bold">Adjustment:</td>
+                                <td style="font-weight:bold">{{ creditnote.adjustment|floatformat:2 }}</td>
+                            </tr>
+                            <tr class="table-hover-custom">
+                                <tfoot>
+                                    <td style="font-weight:bold">Total:</td>
+                                    <td style="font-weight:bold;">{{ creditnote.total|floatformat:2 }}</td>
+                                </tfoot>
+                            </tr>
                            
-
+                        </table>
+                    </div>
+                </div>
+            </section> 
                             
                         </div>
                     </div>
-                    <div class="col-md-3"></div>
-                </div>
-            </div>
-
-
-        </div>
-    </div>
-
-
-
-
-    
-    
-    
-    
-    <script>
-        $(document).ready(function() {
-            let status = '{{ expense.status }}'
-            if(status == 'Save'){
-                $('.convert').hide()
-            }
-            else{
-                $('.convert').show()
-            }
-        });
-    </script>
-    
-   
-    <script>
-        function printfun() {
-            var printContents = document.getElementById("slipdiv").innerHTML;
-            var $printerDiv = $('<div class="printContainer"></div>');
-            $printerDiv.html(printContents);
-            $('body').append($printerDiv).addClass("printingContent");
-    
-            setTimeout(function () {
-                window.print();
-                $printerDiv.remove();
-                $('body').removeClass("printingContent");
-            }, 1000);
-        }
-    </script>
-        
-    <script>
-        $(document).ready(function() {
-            $(".dropdown-filter").click(function() {
-                var selectedItem = $(this).data("filter");
-                console.log("Selected Item: " + selectedItem);
-
-                if (selectedItem === 'all') {
-                    TableDataBind(); // Show all data when "All" is selected
-                } else {
-                    filterResults(selectedItem);
-                }
-            });
-        });
-
-        function filterResults(status) {
-            $('#dataTable tbody tr').each(function() {
-                var rowStatus = $(this).data('status');
-
-                if (status === 'all' || rowStatus === status) {
-                    $(this).removeClass("hidden"); // Show rows that match the selected status
-                } else {
-                    $(this).addClass("hidden"); // Hide rows that don't match
-                }
-            });
-        }
-
-        function TableDataBind() {
-            $('#dataTable tbody tr').removeClass("hidden"); // Show all rows
-        }
-    </script>   
-    {% comment %} <script>
-        function toggleForm(formNumber) {
-            // Get all form elements and buttons
-            var forms = document.querySelectorAll('.form');
-            var buttons = document.querySelectorAll('.tablinks');
-        
-            // Hide all forms
-            forms.forEach(function(form) {
-                form.style.display = 'none';
-            });
-        
-            // Show the selected form
-            forms[formNumber - 1].style.display = 'block';
-        
-            // Remove "active" class from all buttons
-            buttons.forEach(function(button) {
-                button.classList.remove('active');
-            });
-        
-            // Add "active" class to the clicked button
-            buttons[formNumber - 1].classList.add('active');
-        }
-        </script> {% endcomment %}
-        
-    
-
-
-      
-        
-   {% comment %} <script>
-        var currentForm = 0;
-        var formIds = ['form1', 'form2', 'form3','form1', 'Template'];
-        
-      
-        function toggleForms() {
-          if (currentForm < formIds.length - 1) {
-            document.getElementById(formIds[currentForm]).style.display = 'none';
-            currentForm++;
-            document.getElementById(formIds[currentForm]).style.display = 'block';
-           
-          } else {
-            // If at the last form, reset back to the Template
-            document.getElementById(formIds[currentForm]).style.display = 'none';
-            currentForm = 0;
-            document.getElementById('Template').style.display = 'block';
-          }
-          
-        }
-      </script>
-        {% endcomment %}
-      
-        <script>
-        function toggleForm(formNumber) {
-            //const printbutton1=document.getElementById(`printTemplate`)
-            //printbutton1.style.display="none";
-            
-            
-            for (let i = 1; i <5; i++) {
-                const form = document.getElementById(`form${i}`);
-                const button = document.getElementById(`formButton${i}`);
-                const printbutton=document.getElementById(`printTemplate${i}`)
-                const printbutton1=document.getElementById(`printTemplate`)
-                const overview=document.getElementById('Overview')
-              
-        
-                if (i === formNumber) {
-                    form.style.display = "block";
-                    button.classList.add("active"); // Optionally, you can add a class for highlighting the active button.
-                    printbutton.style.display="block";
-                    printbutton1.style.display="none";
-                    overview.style.display="none";
-                    
-
-                } else {
-                    form.style.display = "none";
-                    button.classList.remove("active"); // Remove the active class for other buttons.
-                    printbutton.style.display="none";
-                    overview.style.display="none";
-                
-                }
-            }
-        }
-        </script>
-     
-        
-      
-    
-         {% comment %} <script type="text/javascript"> {% endcomment %}
-            {% comment %} $(document).ready(function ($) {
-                console.log('print');
-          
-                $(document).on('click', '.btn_print', function (event) {
-                    console.log('print1');
-                    event.preventDefault();
-          
-                    //credit : https://ekoopmans.github.io/html2pdf.js
-          
-                    var element = document.getElementById('Template');
-                    
-          
-                   
-                    var opt =
-                    {
-                        margin: 0,
-                        filename: 'recurring expense_' + '.pdf',
-                        image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { scale: 2 },
-                        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-                    };
-          
-                    // New Promise-based usage:
-                    html2pdf().set(opt).from(element).save();
-                   
-
-          
-          
-                });
-           {% endcomment %}
-
-           {% comment %} function printPdf(id) {
-            console.log(id);
-            //e.preventDefault(); // You don't need this line anymore
-        
-            // credit : https://ekoopmans.github.io/html2pdf.js
-        
-            var element = document.getElementById(id);
-            element.style.display="block";
-        
-            var opt = {
-                margin: 0,
-                filename: 'recurring expense_' + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-        
-            // New Promise-based usage:
-            html2pdf().set(opt).from(element).save();
-        }
-        {% comment %} $(document).on('click', '#toPDF', function (e) {
-            e.preventDefault()
-            printPdf('Template'); // Pass the ID as a parameter
-        }); {% endcomment %}
-        {% comment %} $(document).on('click', '#toPDF1', function (e) {
-            e.preventDefault()
-            printPdf('form1'); // Pass the ID as a parameter
-        }); {% endcomment %}
-        {% comment %} $(document).on('click', '#toPDF2', function (e) {
-            e.preventDefault()
-            printPdf('form2'); // Pass the ID as a parameter
-        });
-        $(document).on('click', '#toPDF3', function (e) {
-            e.preventDefault()
-            printPdf('form3'); // Pass the ID as a parameter
-        });
-          
-          </script> {% endcomment %}
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-          <script type="text/javascript">
-              $(document).ready(function ($) {
-                  $(document).on('click', '#toPDF', function (event) {
-                      event.preventDefault();
-                      temp = document.getElementById('Template')
-      
-                      print1 = document.getElementById('Template')
-                      print2 = document.getElementById('form1')
-                      print3 = document.getElementById('form2')
-                      print4 = document.getElementById('slipdiv')
-                    
-      
-                      if (print1.style.display !== 'none'){
-                          var element = document.getElementById('printdiv1') 
-                          element.style.color = 'black';
-                      }
-      
-                      if (print2.style.display !== 'none'){
-                          var element = document.getElementById('printdiv2') 
-                          element.style.color = 'black';
-                      }
-      
-                      if (print3.style.display !== 'none'){
-                          var element = document.getElementById('printdiv3') 
-                          element.style.color = 'black';
-                          
-                      }
-      
-                      if (print4.style.display !== 'none'){
-                          var element = document.getElementById('printslip') 
-                          element.style.color = 'black';
-                          
-                     }
-      
-                       
-                       //element.style.color = 'black';
-                      // element.style.backgroundColor = 'white';
-                      var opt =
-                      {
-                          margin: 1,
-                          filename: 'Recurringexpense' + '.pdf',
-                          image: { type: 'jpeg', quality: 0.98 },
-                          html2canvas: { scale: 4 },
-                          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', }
-                      };
-                      html2pdf().set(opt).from(element).save();
-                  });
-              });
-          </script>
-
-          
-            <script>  
-                function printSection(sectionId) {
-                var printContents = document.getElementById(sectionId).innerHTML;
-                var originalContents = document.body.innerHTML;
-            
-                document.body.innerHTML = printContents;printSection
-            
-                window.print();
                
-            
-                document.body.innerHTML = originalContents;
-                window.location.reload();
-            } 
+            </div>             
+                
+               
 
+              
+                
+                
+               
 
-           
-         </script>
-        <script>
-            function show_slip()
-            {
-            document.getElementById("slipdiv").style.display="block";
-            document.getElementById("Template").style.display="none";
-            document.getElementById("Overview").style.display="none";
-            document.getElementById("formButton").style.display="none";
-            //document.getElementById("formButton2").style.display="none";
-            document.getElementById("form1").style.display="none";
-            document.getElementById("form2").style.display="none";
-           
+                <!-- overview -->
+            <div id="Overview" class="  tabcontent  p-5 m-3"  style="overflow-x: hidden; border-top: #ccc double 2px; background-color: burlywood ;border-radius: 1px; display:block;">
 
-            }
-            function show_template() {
-                document.getElementById("slipdiv").style.display = "none";
-                document.getElementById("Template").style.display = "block";
-                document.getElementById("Overview").style.display = "none";
-            }
-        
-          
-           
-
-            
-        </script>
-     
-    
-    <!-- comment modal -->
-
-    <div class="modal fade " id="cmnts"
-        style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
-        <div class="modal-dialog modal-xl m-5 p-5">
-            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                <div class="modal-header " style="background: rgb(32, 35, 37);">
-                    <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
-                    <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                        aria-label="Close">&times;</button>
-
-                </div>
-                <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
-                    <div class="card p-0 m-0">
-                        <form action="{% url 'expense_comment' expense.id  %}" method="post"  id="modalComment">
-                            {% csrf_token %}
-                            <div class="row mt-2">
-                                <input type="hidden" value="" id="com_id">
-                                <div class="col-md-6 mt-2">
-                                    <textarea class="form-control text-dark bg-light" id="comment1" name="comment" required
-                                        style="height: 200px; width: 550px;"/></textarea>
-                                  
-                                </div>
-                            </div>
-                        
-                            <div class="row mt-5">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4">
-                                    <div class="d-flex">
-                                        <button  type="submit" class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3"  id="commentSave">Save</button>
-                                        <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">Cancel</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="col-md-4"></div>
-                            </div>
-
-
-                            <div class="container-fluid overflow-y:scroll;">
-                                <div class="comments">
-                                    {% for com in comments %} {# Use 'comments' instead of 'comment' #}
-                                        <div class="comment">
-                                            <div class="user-info">
-                                                <p class="text-uppercase">Profile name:{{ com.profile_name }}</p> {# Display the user's profile name #}
+                                <h3 class="mb-0 mx-5 text-muted" style="color: rgb(161, 195, 226);">{{ company.company_name }}</h3>
+                            <center>
+                                <h2 class="mb-4" style=" color: #434141;">CreditNote Bill</h2>
+                            </center>
+                                <div class="row g-0">
+                                    <div class="col-md-7">
+                                        <div class="p-5">
+                                            <p class="text-black">Credit Note:</p>
+                                            <div class="d-flex justify-content-between align-items-center mb-5">
+                                                <b>
+                                                    <span style=" color: #434141;">
+                                                        {{ creditnote.credit_note }}
+                                                    </span>
+                                                </b>
                                             </div>
-                                            <div class="comment-content">
-                                                <p class="text-uppercase">{{ com.comment }}</p>
-                                                <a href="{% url 'delete_expense_comment' expense.id com.id %}" class="btn btn-danger btn-sm" style="margin-left:350px;margin-top:-80px;">Delete</a>
+                                            <hr class="my-4">
 
+
+                                            <hr class="my-4">
+                                            <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                                <div class="col-md-6 mt-3">
+                                                    <h6 class="mb-0 text-black">Customer Name:</h6>
+                                                </div>
+                                                <div class="col-md-6 mt-3">
+                                                    <p class="mb-0 " style="font-size: 18px; color: #434141;"> 
+                                                        {{creditnote.customer.customerName }}</p>
+                                                </div>
                                             </div>
-                                            {% comment %} <div class="comment-actions">
-                                                <!-- Add other comment actions like Reply, Like, etc. -->
-                                            </div> {% endcomment %}
+
+                                            <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                                <div class="col-md-6 mt-3">
+                                                    <h6 class="mb-0 text-black">Invoice Number:</h6>
+                                                </div>
+                                                <div class="col-md-6 mt-3">
+                                                    <p class="mb-0 " style="font-size: 18px; color: #434141;">
+                                                        {{creditnote.invoice_number }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                            <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0 text-black">Creditnote Date:</h6>
+                                            </div>
+                                            <div class="col-md-6 mt-3">
+                                                <p class="mb-0" style="font-size: 18px; color: #434141;">{{ creditnote.creditnote_date|date:'d-m-Y' }}</p>
+                                            </div>
                                         </div>
-                                    {% endfor %}
+
+                                            
+
+                                            <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                                <div class="col-md-6 mt-3">
+                                                    <h6 class="mb-0 text-black">Payment Terms:</h6>
+                                                </div>
+                                                <div class="col-md-6 mt-3">
+                                                    <p class="mb-0" style="font-size: 18px; color: #3a3636;"> NET  {{creditnote.customer.PaymentTerms }}</p>
+                                                </div>
+                                            </div> 
+
+                                            <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                            <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0 text-black">GST Treatment:</h6>
+                                            </div>
+                                            <div class="col-md-6 mt-3">
+                                                <p class="mb-0" style="font-size: 18px; color: #434141;"> {{creditnote.customer.GSTTreatment }}</p>
+                                            </div>
+                                        </div>
+                                        {% if creditnote.customer.GSTIN %}
+                                        <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                            <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0 text-black">GSTIN:</h6>
+                                            </div>
+                                            <div class="col-md-6 mt-3">
+                                                <p class="mb-0" style="font-size: 18px; color: #434141;"> {{ creditnote.customer.GSTIN }}</p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                        <div class="col-md-6 mt-3">
+                                            <h6 class="mb-0 text-black">Address:</h6>
+                                        </div>
+                                        <div class="col-md-6 mt-3">
+                                            <p class="mb-0" style="font-size: 18px; color: #434141;"> {{creditnote.customer.Address1 }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                            <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0 text-black">Customer Notes:</h6>
+                                            </div>
+                                            <div class="col-md-6 mt-3">
+                                                <p class="mb-0" style="font-size: 18px; color: #434141;">{{ creditnote.customer_notes }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                            <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0 text-black">Source of Supply :</h6>
+                                            </div>
+                                            <div class="col-md-6 mt-3">
+                                                <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ creditnote.customer.placeofsupply }}</p>
+                                            </div>
+
+                                        </div>
+                                        <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                            {% for i in credititems %}
+                                        
+                                            <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0 text-black">Tax :</h6>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mt-3">
+                                                {% if creditnote.customer.placeofsupply == "[KL] Kerala" %}
+                                            
+                                                <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ i.tax }} % GST</p>
+                                                {% else %}
+                                                <p class="mb-0 text-capitalize" style="font-size: 18px; color: #434141;">{{ i.tax }} % IGST</p>
+                                                {% endif %}
+
+                                            
+                                            </div>
+                                            {% endfor %}
+
+                                        </div>
+                                            
+                                            <!-- <hr class="my-4"> -->
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5  " style="background-color:#8b3131; border-radius: 5px;" >
+                                        <div class="p-5">
+                                            <div class="d-block justify-content-between mb-5">
+                                            <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                                <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0 text-black">Item:</h6>
+                                            </div>
+                                            {% for credititem in credititems %}
+                                            <div class="col-md-6 mt-3">
+                                                <p class="mb-0" style="font-size: 18px; color: #fbf3f3;">{{ credititem.item_name.Name }}</p>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                            </div>
+                                            <div class="d-block justify-content-between mb-5">
+                                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                                <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0 text-black">Quantity :</h6>
+                                            </div>
+                                            {% for credititem in credititems %}
+                                            <div class="col-md-6 mt-3">
+                                                <p class="mb-0" style="font-size: 18px; color: #fbf3f3;">{{ credititem.quantity }}</p>
+                                            </div>
+                                            {% endfor %}
+                                            </div>
+
+
+                                            <hr class="my-6">
+
+                                            <div class="d-flex justify-content-between mb-5">
+                                                <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0 text-black">Rate :</h6>
+                                            </div>
+                                            {% for credititem in credititems %}
+                                            <div class="col-md-6 mt-3">
+                                                <p class="mb-0" style="font-size: 18px; color: #fbf3f3;">{{ credititem.item_name.s_price }}</p>
+                                            </div>
+                                            {% endfor %}
+                                            </div>
+                                            <div class="justify-content-between mb-3 d-none" id="igst">
+                                                <div class="col-md-4 mt-3">
+                                                    <h6 style="color: #ccc;">GST Number :</h5><br>
+                                                </div>
+                                                <div class="col-md-8 mt-4 mx-3">
+                                                
+                                                    <input type="text" value="{{ expense.gst }} " class="amnt"
+                                                        style="font-size: 16px; color: azure;margin-top:-3.6rem" readonly>
+                                                    
+                                                
+                                                </div>
+                                            </div>
+                                            {% comment %} <div class=" justify-content-between mb-5 d-none" id="cgst">
+                                                <div class="col-md-4 mt-3">
+                                                    <h6 style="color: #ccc;">Paid Through :</h5><br>
+                                                </div>
+                                                <div class="col-md-8 mt-3 mx-3">
+                                                    <input type="text" value="{{ expense.paidthrough }} " class="amnt"
+                                                        style="font-size: 16px; color: azure;" readonly>
+                                                </div>
+                                            </div>
+                                            <div class=" justify-content-between mb-5  d-none" id="sgst">
+                                                <div class="col-md-4 mt-3">
+                                                    <h6 style="color: #ccc;">Paid Through  :</h5><br>
+                                                </div>
+                                                <div class="col-md-8 mt-3 mx-3">
+                                                    <input type="text" value="{{ expense.paidthrough }}" class="amnt"
+                                                        style="font-size: 16px; color: azure;" readonly>
+                                                </div>
+                                            </div> {% endcomment %}
+                                            <div class="d-flex justify-content-between mb-5">
+                                                <div class="col-md-8 mt-3">
+                                                    <h6 style="color: #ccc;">Paid Through :</h5><br>
+                                                </div>
+                                                <div class="col-md-4 mt-3 mx-3">
+                                                    <input type="text" value="{{ expense.paidthrough }} " class="amnt"
+                                                        style="font-size: 16px; color: azure;margin-left:-2.8rem;margin-top:-2.5rem" readonly>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex justify-content-between mb-5">
+                                                <div class="col-md-6 mt-3">
+                                                    <h6 style="color: #ccc;margin-top:3rem">Expense Type:</h5><br>
+                                                </div>
+                                                <div class="col-md-6 mt-3 mx-3">
+                                                    <input type="text" value="{{ expense.expense_type }} "
+                                                        class="amnt " style="font-size: 16px; color: azure;margin-top:2.8rem" readonly>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
+                                
+                                
                             </div>
+
                             
                             
-                        </form>
                         
+                            
+
+
+
+               
+                
+            
+                <script>
+                    function printfun() {
+                        var printContents = document.getElementById("slipdiv").innerHTML;
+                        var $printerDiv = $('<div class="printContainer"></div>');
+                        $printerDiv.html(printContents);
+                        $('body').append($printerDiv).addClass("printingContent");
+                
+                        setTimeout(function () {
+                            window.print();
+                            $printerDiv.remove();
+                            $('body').removeClass("printingContent");
+                        }, 1000);
+                    }
+                </script>
+                    
+                <script>
+                    $(document).ready(function() {
+                        $(".dropdown-filter").click(function() {
+                            var selectedItem = $(this).data("filter");
+                            console.log("Selected Item: " + selectedItem);
+
+                            if (selectedItem === 'all') {
+                                TableDataBind(); // Show all data when "All" is selected
+                            } else {
+                                filterResults(selectedItem);
+                            }
+                        });
+                    });
+
+                    function filterResults(status) {
+                        $('#dataTable tbody tr').each(function() {
+                            var rowStatus = $(this).data('status');
+
+                            if (status === 'all' || rowStatus === status) {
+                                $(this).removeClass("hidden"); // Show rows that match the selected status
+                            } else {
+                                $(this).addClass("hidden"); // Hide rows that don't match
+                            }
+                        });
+                    }
+
+                    function TableDataBind() {
+                        $('#dataTable tbody tr').removeClass("hidden"); // Show all rows
+                    }
+                </script>   
+                {% comment %} <script>
+                    function toggleForm(formNumber) {
+                        // Get all form elements and buttons
+                        var forms = document.querySelectorAll('.form');
+                        var buttons = document.querySelectorAll('.tablinks');
+                    
+                        // Hide all forms
+                        forms.forEach(function(form) {
+                            form.style.display = 'none';
+                        });
+                    
+                        // Show the selected form
+                        forms[formNumber - 1].style.display = 'block';
+                    
+                        // Remove "active" class from all buttons
+                        buttons.forEach(function(button) {
+                            button.classList.remove('active');
+                        });
+                    
+                        // Add "active" class to the clicked button
+                        buttons[formNumber - 1].classList.add('active');
+                    }
+                    </script> {% endcomment %}
+                    
+                
+
+
+                
+                    
+            <script>
+                    var currentForm = 0;
+                    var formIds = ['form1', 'form2', 'form3','form1', 'Template'];
+                    
+                
+                    function toggleForms() {
+                    if (currentForm < formIds.length - 1) {
+                        document.getElementById(formIds[currentForm]).style.display = 'none';
+                        currentForm++;
+                        document.getElementById(formIds[currentForm]).style.display = 'block';
+                    
+                    } else {
+                        // If at the last form, reset back to the Template
+                        document.getElementById(formIds[currentForm]).style.display = 'none';
+                        currentForm = 0;
+                        document.getElementById('Template').style.display = 'block';
+                    }
+                    
+                    }
+                </script>
+                
+                
+                    <script>
+                    function toggleForm(formNumber) {
+                        //const printbutton1=document.getElementById(`printTemplate`)
+                        //printbutton1.style.display="none";
+                        
+                        
+                        for (let i = 1; i <5; i++) {
+                            const form = document.getElementById(`form${i}`);
+                            const button = document.getElementById(`formButton${i}`);
+                            const printbutton=document.getElementById(`printTemplate${i}`)
+                            const printbutton1=document.getElementById(`printTemplate`)
+                        
+                    
+                            if (i === formNumber) {
+                                form.style.display = "block";
+                                button.classList.add("active"); // Optionally, you can add a class for highlighting the active button.
+                                printbutton.style.display="block";
+                                printbutton1.style.display="none";
+
+                            } else {
+                                form.style.display = "none";
+                                button.classList.remove("active"); // Remove the active class for other buttons.
+                                printbutton.style.display="none";
+                            }
+                        }
+                    }
+                    </script>
+                
+                    
+                
+                
+                    {% comment %} <script type="text/javascript"> {% endcomment %}
+                        {% comment %} $(document).ready(function ($) {
+                            console.log('print');
+                    
+                            $(document).on('click', '.btn_print', function (event) {
+                                console.log('print1');
+                                event.preventDefault();
+                    
+                                //credit : https://ekoopmans.github.io/html2pdf.js
+                    
+                                var element = document.getElementById('Template');
+                                
+                    
+                            
+                                var opt =
+                                {
+                                    margin: 0,
+                                    filename: 'recurring expense_' + '.pdf',
+                                    image: { type: 'jpeg', quality: 0.98 },
+                                    html2canvas: { scale: 2 },
+                                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                                };
+                    
+                                // New Promise-based usage:
+                                html2pdf().set(opt).from(element).save();
+                            
+
+                    
+                    
+                            });
+                    {% endcomment %}
+
+                    {% comment %} function printPdf(id) {
+                        console.log(id);
+                        //e.preventDefault(); // You don't need this line anymore
+                    
+                        // credit : https://ekoopmans.github.io/html2pdf.js
+                    
+                        var element = document.getElementById(id);
+                        element.style.display="block";
+                    
+                        var opt = {
+                            margin: 0,
+                            filename: 'recurring expense_' + '.pdf',
+                            image: { type: 'jpeg', quality: 0.98 },
+                            html2canvas: { scale: 2 },
+                            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                        };
+                    
+                        // New Promise-based usage:
+                        html2pdf().set(opt).from(element).save();
+                    }
+                    {% comment %} $(document).on('click', '#toPDF', function (e) {
+                        e.preventDefault()
+                        printPdf('Template'); // Pass the ID as a parameter
+                    }); {% endcomment %}
+                    {% comment %} $(document).on('click', '#toPDF1', function (e) {
+                        e.preventDefault()
+                        printPdf('form1'); // Pass the ID as a parameter
+                    }); {% endcomment %}
+                    {% comment %} $(document).on('click', '#toPDF2', function (e) {
+                        e.preventDefault()
+                        printPdf('form2'); // Pass the ID as a parameter
+                    });
+                    $(document).on('click', '#toPDF3', function (e) {
+                        e.preventDefault()
+                        printPdf('form3'); // Pass the ID as a parameter
+                    });
+                    
+                    </script> {% endcomment %}
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+                    <script type="text/javascript">
+                        $(document).ready(function ($) {
+                            $(document).on('click', '#toPDF', function (event) {
+                                event.preventDefault();
+                
+                                print1 = document.getElementById('Template')
+                                print2 = document.getElementById('form1')
+                                print3 = document.getElementById('form2')
+                                //print4 = document.getElementById('slipdiv')
+                
+                                if (print1.style.display !== 'none'){
+                                    var element = document.getElementById('printdiv1') 
+                                    element.style.color = 'black';
+                                }
+                
+                                if (print2.style.display !== 'none'){
+                                    var element = document.getElementById('printdiv2') 
+                                    element.style.color = 'black';
+                                }
+                
+                                if (print3.style.display !== 'none'){
+                                    var element = document.getElementById('printdiv3') 
+                                    element.style.color = 'black';
+                                }
+                
+                                //if (print4.style.display !== 'none'){
+                                    //  var element = document.getElementById('printslip') 
+                                //}
+                
+                                
+                                //element.style.color = 'black';
+                                // element.style.backgroundColor = 'white';
+                                var opt =
+                                {
+                                    margin: 1,
+                                    filename: 'Recurringexpense' + '.pdf',
+                                    image: { type: 'jpeg', quality: 0.98 },
+                                    html2canvas: { scale: 4 },
+                                    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', }
+                                };
+                                html2pdf().set(opt).from(element).save();
+                            });
+                        });
+                    </script>
+
+                    
+                        <script>  
+                            function printSection(sectionId) {
+                            var printContents = document.getElementById(sectionId).innerHTML;
+                            var originalContents = document.body.innerHTML;
+                        
+                            document.body.innerHTML = printContents;printSection
+                        
+                            window.print();
+                        
+                        
+                            document.body.innerHTML = originalContents;
+                            window.location.reload();
+                        } 
+
+
+                    
+                    </script>
+                    <script>
+                        function show_slip()
+                        {
+                        document.getElementById("slipdiv").style.display="block";
+                        document.getElementById("Template").style.display="none";
+                        document.getElementById("Overview").style.display="none";
+                        document.getElementById("formButton").style.display="none";
+                        
+
+                        }
+                    
+                        </script>
+                
+                
+                
+                <!-- comment modal -->
+
+                <div class="modal fade " id="cmnts"
+                    style="width: 750px; margin-left: 350px; justify-content: center; overflow: hidden;">
+                    <div class="modal-dialog modal-xl m-5 p-5">
+                        <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                            <div class="modal-header " style="background: rgb(32, 35, 37);">
+                                <h5 class="m-3 text-uppercase text-light">Enter Comment</h5>
+                                <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                                    aria-label="Close">&times;</button>
+
+                            </div>
+                            <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                                <div class="card p-0 m-0">
+                                    <form action="" method="post"  id="modalComment">
+                                        {% csrf_token %}
+                                        <div class="row mt-2">
+                                            <input type="hidden" value="" id="com_id">
+                                            <div class="col-md-6 mt-2">
+                                                <textarea class="form-control text-dark bg-light" id="comment1" name="comment" required
+                                                    style="height: 200px; width: 550px;"/></textarea>
+                                            
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="row mt-5">
+                                            <div class="col-md-4"></div>
+                                            <div class="col-md-4">
+                                                <div class="d-flex">
+                                                    <button  type="submit" class="btn save_btn rounded-pill text-grey w-50 my-4 mx-3"  id="commentSave">Save</button>
+                                                    <button type="button" class="close btn save_btn rounded-pill text-grey w-50 my-4" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">Cancel</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4"></div>
+                                        </div>
+
+
+                                        <div class="container-fluid overflow-y:scroll;">
+                                            <div class="comments">
+                                                {% for com in comments %} {# Use 'comments' instead of 'comment' #}
+                                                    <div class="comment">
+                                                        <div class="user-info">
+                                                            <p class="text-uppercase">Profile name:{{ com.profile_name }}</p> {# Display the user's profile name #}
+                                                        </div>
+                                                        <div class="comment-content">
+                                                            <p class="text-uppercase">{{ com.comment }}</p>
+                                                            <a href="{% url 'delete_expense_comment' expense.id com.id %}" class="btn btn-danger btn-sm" style="margin-left:350px;margin-top:-80px;">Delete</a>
+
+                                                        </div>
+                                                        {% comment %} <div class="comment-actions">
+                                                            <!-- Add other comment actions like Reply, Like, etc. -->
+                                                        </div> {% endcomment %}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        
+                                        
+                                    </form>
+                                    
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- attach file modal -->
+                <!-- attach file modal -->
 
-    <div class="modal fade" id="files" style="width: 750px; margin-left: 350px;">
-        <div class="modal-dialog modal-xl m-5 p-5">
-            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                <div class="modal-header " style="background: rgb(32, 35, 37);">
-                    <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Add File</h5>
-                    <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                        aria-label="Close">&times;</button>
-                </div>
-                <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
-                    <div class="card p-0 m-0">
-                        <form action="" id="modalAddfile">
-                            <div class="row mt-2 mx-5 text-center">
-                                <input type="hidden" value="{{expense.id}}" id="file_id">
-                                <input type="file" class="form-control text-dark bg-light" name="file" id="filess" style="width: 400px;">
-
+                <div class="modal fade" id="files" style="width: 750px; margin-left: 350px;">
+                    <div class="modal-dialog modal-xl m-5 p-5">
+                        <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                            <div class="modal-header " style="background: rgb(32, 35, 37);">
+                                <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Add File</h5>
+                                <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                                    aria-label="Close">&times;</button>
                             </div>
+                            <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                                <div class="card p-0 m-0">
+                                    <form action="" id="modalAddfile">
+                                        <div class="row mt-2 mx-5 text-center">
+                                            <input type="hidden" value="{{expense.id}}" id="file_id">
+                                            <input type="file" class="form-control text-dark bg-light" name="file" id="filess" style="width: 400px;">
 
-                            <div class="row mt-5">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4">
-                                    <div class="d-flex">
-                                        <button
-                                            class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
-                                            type="submit" data-dismiss="modal" id="fileSave">Save </button>
+                                        </div>
+
+                                        <div class="row mt-5">
+                                            <div class="col-md-4"></div>
+                                            <div class="col-md-4">
+                                                <div class="d-flex">
+                                                    <button
+                                                        class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
+                                                        type="submit" data-dismiss="modal" id="fileSave">Save </button>
 
 
-                                        <button type="button"
-                                            class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
-                                            data-dismiss="modal" aria-label="Close"> Cancel</button>
-                                    </div>
+                                                    <button type="button"
+                                                        class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
+                                                        data-dismiss="modal" aria-label="Close"> Cancel</button>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4"></div>
+                                        </div>
+                                    </form>
                                 </div>
-                                <div class="col-md-4"></div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
 
-    <!-- email modal -->
+                <!-- email modal -->
 
-    <div class="modal fade p-3" id="emails" style="width: 800px; margin-left: 350px; overflow-x: hidden;">
-        <div class="modal-dialog modal-xl m-5 p-5">
-            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-                <div class="modal-header " style="background: rgb(32, 35, 37);">
-                    <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Send Email</h5>
-                    <button type="button" class="close text-dark bg-none" data-dismiss="modal"
-                        aria-label="Close">&times;</button>
-                </div>
-                <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
-                    <div class="card p-0 m-0">
-                        <form action="" id="modalEmail">
-                            <!-- <input type="hidden" value="{{recur_bill.id}}" id="email_id"> -->
-                            <div class="row mt-2">
-                                <div class="col-md-3 mt-2">
-                                  <label for="">To : </label><br>
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                  <input type="text" class="form-control text-dark bg-light" id="to" name="to" required style="width: 350px;">
+                <div class="modal fade p-3" id="emails" style="width: 800px; margin-left: 350px; overflow-x: hidden;">
+                    <div class="modal-dialog modal-xl m-5 p-5">
+                        <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
+                            <div class="modal-header " style="background: rgb(32, 35, 37);">
+                                <h5 class="m-3 text-uppercase text-light" id="exampleModalLabel">Send Email</h5>
+                                <button type="button" class="close text-dark bg-none" data-dismiss="modal"
+                                    aria-label="Close">&times;</button>
+                            </div>
+                            <div class="modal-body" style="background: rgb(32, 35, 37); justify-content: center; overflow: hidden;">
+                                <div class="card p-0 m-0">
+                                    <form action="" id="modalEmail">
+                                        <!-- <input type="hidden" value="{{recur_bill.id}}" id="email_id"> -->
+                                        <div class="row mt-2">
+                                            <div class="col-md-3 mt-2">
+                                            <label for="">To : </label><br>
+                                            </div>
+                                            <div class="col-md-6 mt-2">
+                                            <input type="text" class="form-control text-dark bg-light" id="to" name="to" required style="width: 350px;">
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-2">
+                                            <div class="col-md-3 mt-2">
+                                            <label for="">From : </label><br>
+                                            </div>
+                                            <div class="col-md-6 mt-2">
+                                            <input type="text" class="form-control text-dark bg-light" id="from" name="from" required style="width: 350px;">
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-2">
+                                            <div class="col-md-3 mt-2">
+                                            <label for="">Subject : </label><br>
+                                            </div>
+                                            <div class="col-md-6 mt-2">
+                                            <input type="text" class="form-control text-dark bg-light" id="sub" name="sub" required style="width:350px;">
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-2">
+                                            <div class="col-md-3 mt-2">
+                                            <label for="">Message : </label><br>
+                                            </div>
+                                            <div class="col-md-6 mt-2">
+                                                <textarea class="form-control text-dark bg-light" id="msg" name="msg" required
+                                                style="height: 200px; width: 350px;"> </textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-5">
+                                            <div class="col-md-4"></div>
+                                            <div class="col-md-4">
+                                                <div class="d-flex">
+                                                    <button
+                                                        class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
+                                                        type="submit" data-dismiss="modal" id="emailSave">Send </button>
+
+
+                                                    <button type="button"
+                                                        class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
+                                                        data-dismiss="modal" aria-label="Close"> Cancel</button>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4"></div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-
-                            <div class="row mt-2">
-                                <div class="col-md-3 mt-2">
-                                  <label for="">From : </label><br>
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                  <input type="text" class="form-control text-dark bg-light" id="from" name="from" required style="width: 350px;">
-                                </div>
-                            </div>
-
-                            <div class="row mt-2">
-                                <div class="col-md-3 mt-2">
-                                  <label for="">Subject : </label><br>
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                  <input type="text" class="form-control text-dark bg-light" id="sub" name="sub" required style="width:350px;">
-                                </div>
-                            </div>
-
-                            <div class="row mt-2">
-                                <div class="col-md-3 mt-2">
-                                  <label for="">Message : </label><br>
-                                </div>
-                                <div class="col-md-6 mt-2">
-                                    <textarea class="form-control text-dark bg-light" id="msg" name="msg" required
-                                    style="height: 200px; width: 350px;"> </textarea>
-                                </div>
-                            </div>
-
-                            <div class="row mt-5">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4">
-                                    <div class="d-flex">
-                                        <button
-                                            class=" font-weight-bold save_btn rounded-pill text-light w-50 my-4 mx-2"
-                                            type="submit" data-dismiss="modal" id="emailSave">Send </button>
-
-
-                                        <button type="button"
-                                            class="font-weight-bold save_btn rounded-pill text-light w-50 my-4"
-                                            data-dismiss="modal" aria-label="Close"> Cancel</button>
-                                    </div>
-                                </div>
-                                <div class="col-md-4"></div>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
+                
             </div>
+
         </div>
     </div>
-    
 </div>
-<div id="editor"></div>
-<!-- </div> -->
+
+      
+
+        
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -1812,7 +2199,7 @@ $(document).ready(function() {
         // Send an AJAX request to toggle the status
         $.ajax({
             type: "POST",
-            url: "{% url 'toggle_expense_status' expense.id %}", // Use the new URL with the expense ID
+            url: "", // Use the new URL with the expense ID
             data: {
                 csrfmiddlewaretoken: "{{ csrf_token }}"
             },
@@ -1846,7 +2233,7 @@ $(document).ready(function() {
                 // "slipdiv" is visible, show the "Template" content but don't switch tabs
                 template.style.display = "block";
                 overview.style.display = "none";
-                slipdiv.style.display="none";
+                
                 formButton.style.display="block";
                 form1.style.display="none";
                 form2.style.display="none";
@@ -1854,6 +2241,7 @@ $(document).ready(function() {
             } else if (tabName === 'Overview' ) {
                 // "slipdiv" is visible, switch to the "Overview" tab
                 template.style.zIndex = "0";
+               
                 overview.style.display = "block";
                 form1.style.display = "none";
                 form2.style.display = "none";
@@ -1862,9 +2250,11 @@ $(document).ready(function() {
             // "slipdiv" is not visible, perform regular tab switching
             if (tabName === 'Template') {
                 template.style.zIndex = "999";
+              
                 overview.style.display = "none";
             } else if (tabName === 'Overview') {
                 template.style.zIndex = "0";
+    
                 overview.style.display = "block";
                 form1.style.display = "none";
                 form2.style.display = "none";
@@ -1881,7 +2271,7 @@ $(document).ready(function() {
         document.querySelector('[onclick="openTab(\'' + tabName + '\')"]').classList.add("active");
     }
         
-    
+
     
     function showTax() {
         if ('{{gst_or_igst}}' == "GST") {
