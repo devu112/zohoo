@@ -126,7 +126,7 @@
                 >{{cust.customerName}}</option>
                 {% endfor %}
             </select>
-            <a data-toggle="modal" data-target="#newcustomer" class="btn" style="background-color: chocolate; color: black; height: 60%; margin-left: 82vh; margin-top: -9vh; font-size: large; padding-top: 1vh;">+</a>
+          <a href="" data-toggle="modal" data-target="#newcustomer">+ Add New Customer</a>
         </div>
       </div>
       <div class="row mt-2" id="email_row" >
@@ -145,7 +145,6 @@
         <div class="col-md-6">
             <div>
             <input type="text" value="{{ creditnote.customer.placeofsupply }}" class="form-control bg-light text-dark" id="pos_input" name="place_of_supply" disabled>
-          
           </div>
         </div>
         
@@ -290,22 +289,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                   
+                    {% for creditnote in credititems %}
                     <tr id="row1">
-                      <td style="width: 10%;">
-                        {% for creditnote in credititems %}
-                            <div>
-                              <select class='form-control bg-light text-dark border-0 item_select itm' name='item_name[]'>
-                                <option value="" disabled>Select Item</option>
-                                {% for i in itm %}
-                                    <option value="{{ i.Name }}" {% if i.Name == creditnote.item_name %} selected {% endif %}>
-                                        {{ i.Name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            </div>
-                        
-                    </td>
+                        <td style="width: 10%;">
+                            <div> <select class='form-control bg-light text-dark border-0 item_select itm'
+                                    name='item_name[]'>
+                                    <option value="" disabled>Select Item</option>
+                                    {% for i in itm %}
+                                    <option value="{{ i.Name }}"
+                                        {% if i.Name == credititem.item_name %} selected {% endif %}>
+                                        {{ i.Name }}</option>
+                                    {% endfor %}
+                                </select></div>
+                        </td>
           
              
                         <td style="width: 13%;" class='text-right'><input type='number' id='hsn1'
@@ -500,23 +496,6 @@ $(document).ready(function () {
                         class="form-control bg-transparent border-0 text-right grandtotal  text-white">
                 </th>
             </tr>
-
-            <tr>
-              <td>Advance Paid</td>
-              <td></td>
-              <td><input type="number" id="advance" name="advance" step="any" value="{{creditnote.paid}}"
-                         class="form-control bg-transparent border-0 text-right advance text-white" >
-                         <div style="color: red; display: none;" id="advancediv">Advance is greater than Total</div></td>
-          </tr>
-          <tr>
-              <td>Balance</td>
-              <td></td>
-              <td>
-                <input type="number" id='balance' name="balance" step="any" value="{{creditnote.balance}}"
-                       class="form-control bg-transparent border-0 text-right balance  text-white"  readonly>
-                
-              </td>
-          </tr>
         </table>
     </div>
 </div>
@@ -3212,34 +3191,5 @@ $(document).on('change', '.item_select', function () {
         });
     });
   </script>
-  <script>
-    function updateBalance() {
-          var grandTotal = parseFloat($('#grandtotal').val()) || 0;
-          var advancePaid = parseFloat($('#advance').val()) || 0;
-
-          var balance = grandTotal - advancePaid;
-
-          // Display the balance amount
-          $('#balance').val(balance.toFixed(2));
-
-          // Show/hide the warning message based on the balance
-          if (advancePaid > grandTotal) {
-              $('#advancediv').show();
-          } else {
-              $('#advancediv').hide();
-          }
-      }
-
-      // Event handlers for changes in shipping and adjustment fields
-      $('#shipping, #adjustment').on('input', function () {
-          calculateGrandTotal();
-      });
-
-      // Event handler for changes in the advance amount
-      $('#advance').on('input', function () {
-          updateBalance();
-            
-      });
-</script>
   
 {% endblock %}
