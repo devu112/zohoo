@@ -20004,3 +20004,31 @@ def product_graphview_btn(request, pk):
     }
     
     return render(request, "product_graphview.html", context)
+
+
+    def creditpdf(request, id):
+    try:
+        cmp = company_details.objects.get(user=request.user.id)
+        creditnote = Creditnote.objects.get(id=id)
+        items = AddItem.objects.filter(creditnote=creditnote.id)
+
+        context = {'creditnote': creditnote, 'cmp': cmp, 'items': items}
+        return render(request, 'creditpdf.html', context)
+    except Exception as e:
+        return HttpResponse(f"Error: {e}")
+
+def customerdatas(request):
+    customer_id = request.GET.get('id')
+    cust = customer.objects.get(id=customer_id)
+    data = {
+        'email': cust.customerEmail,
+        'gstno': cust.GSTIN,
+        'place': cust.placeofsupply,
+        'gsttreat': cust.GSTTreatment,
+        'billingAddress': cust.Address1
+    }
+    return JsonResponse(data)
+
+def check_invoice(request):
+    user_has_invoice = invoice.objects.filter(user=request.user).exists()
+    return JsonResponse({'user_has_invoice': user_has_invoice})
