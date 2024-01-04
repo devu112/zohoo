@@ -20006,7 +20006,7 @@ def product_graphview_btn(request, pk):
     return render(request, "product_graphview.html", context)
 
 
-    def creditpdf(request, id):
+def creditpdf(request, id):
     try:
         cmp = company_details.objects.get(user=request.user.id)
         creditnote = Creditnote.objects.get(id=id)
