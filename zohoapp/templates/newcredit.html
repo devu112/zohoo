@@ -4,9 +4,14 @@
 {% load tz %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <!-- <link rel="stylesheet" href="{% static 'assets/css/style.css' %}"> -->
-
-
+<!-- Add this in your HTML head -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc0/dist/js/select2.min.js"></script>
+<link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" rel="stylesheet" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js" defer></script>
 <style>
+  
 
 #newpayment {
   z-index: 2080; /* Adjust this value as needed to ensure it appears above the customer modal */
@@ -93,7 +98,14 @@
     border: 1px solid #888;
     width: 80%;
   }
- 
+  #partySelect{
+    width: 100%;
+    
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+  } 
    
 
     </style>
@@ -110,267 +122,498 @@
   </div>
   <div>
   <div class="card radius-15 p-5">
-    <form action="{% url 'editdb' pk=creditnote.pk %}" class="mt-2 mb-4" method="post" enctype="multipart/form-data">
+    <form action="{% url 'add_creditnotes' %}" class="mt-2 mb-4" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="row">
         <div class="col-md-3">
           <label >Customer Name *</label>
         </div>
         <div class="col-md-6">
-            <select name="cx_name" id="customer_sel" class="form-control bg-light text-dark">
-                <option value="{{ creditnote.customer.customer_id }}">
-                    {{ creditnote.customer.customerName }}
-                </option>
-                {% for cust in cust %}
-                <option value="{{cust.id}}" data-email="{{ cust.customerEmail }}" data-gst="{{ cust.GSTTreatment }}" data-gstin="{{cust.GSTIN}}" data-pos="{{cust.placeofsupply}}" data-billing_address="{{ cust.Address1 }} ,{{cust.state}}"
-                >{{cust.customerName}}</option>
+          <div class="position-relative">
+            <select id="partySelect" name="cx_name" id="customer_sel" class="form-control bg-light text-dark" onchange="getCustomerData()"  >
+                <option value="">Select customer</option> 
+                {% for cust in c %}
+                    <option value="{{cust.id}}" data-email="{{ cust.customerEmail }}" data-gst="{{ cust.GSTTreatment }}" data-gstin="{{cust.GSTIN}}" data-pos="{{cust.placeofsupply}}" data-billing_address="{{ cust.Address1 }} {{cust.state}}" >{{cust.customerName}}</option>
                 {% endfor %}
             </select>
-            <a data-toggle="modal" data-target="#newcustomer" class="btn" style="background-color: chocolate; color: black; height: 60%; margin-left: 82vh; margin-top: -9vh; font-size: large; padding-top: 1vh;">+</a>
+            <a data-toggle="modal" data-target="#newcustomer" class="btn" style="background-color: chocolate; color: black; height: 70%; margin-left: 82vh; margin-top: -8vh; font-size: large; padding-top: 1vh;">+</a>
+          
+        </div>
+        <script>
+          $(document).ready(function() {
+              
+              $('#partySelect').select2();
+          
+            });
+        </script>
+        
+          
         </div>
       </div>
-      <div class="row mt-2" id="email_row" >
+      <div class="row mt-2" id="email_row" style="display:none;">
         <div class="col-md-3">
           <label for="email">Email</label>
         </div>
         <div class="col-md-6">
-          <input type="text" value="{{ creditnote.customer.customerEmail }}" class="form-control bg-light text-dark" id="email_input" name="email">
+          <input type="text" class="form-control bg-light text-dark" id="email_input" name="email" disabled>
         </div>
       </div>
+    
+
+
       
-      <div class="row mt-2" id="pos_row" >
-        <div class="col-md-3">
-          <label for="pos">Place of Supply</label>
-        </div>
-        <div class="col-md-6">
-            <div>
-            <input type="text" value="{{ creditnote.customer.placeofsupply }}" class="form-control bg-light text-dark" id="pos_input" name="place_of_supply" disabled>
-          
-          </div>
-        </div>
-        
-      </div>
+<script>
+      $(document).ready(function () {
+        $('#customer_sel').select2();
+    });
+  </script>
       
-      
-      <div class="row mt-2" id="gst_row" >
+      <div class="row mt-2" id="gst_row" style="display:none;">
         <div class="col-md-3">
           <label for="gst">GST Treatment</label>
         </div>
         <div class="col-md-6">
-          <input type="text" value="{{ creditnote.customer.GSTTreatment }}" class="form-control bg-light text-dark" id="gst_input" name="gst_treatment">
+          <input type="text" class="form-control bg-light text-dark" id="gst_input" name="gst_treatment" disabled>
         </div>
       </div>
 
-      <div class="row mt-2" id="gstin_row" {% if not creditnote.customer.GSTIN %}style="display: none;"{% endif %}>
+      <div class="row mt-2" id="gstin_row" style="display:none;">
         <div class="col-md-3">
-            <label for="gst">GSTIN</label>
+          <label for="gst">GSTIN </label>
         </div>
         <div class="col-md-6">
-            <input type="text" value="{{ creditnote.customer.GSTIN }}" class="form-control bg-light text-dark" id="gstin_input" name="gstin">
+          <input type="text" class="form-control bg-light text-dark" id="gstin_input" name="gstin" disabled>
         </div>
-    </div>
+      </div>
       
-      <div class="row mt-2" id="billing_address_row" >
+      <div class="row mt-2" id="billing_address_row" style="display:none;">
         <div class="col-md-3">
           <label for="billing_address">Billing Address</label>
         </div>
         <div class="col-md-6">
-          <input type="text" value="{{ creditnote.customer.Address1 }},{{ creditnote.customer.state }}" class="form-control bg-light text-dark" id="billing_address_input" name="billing_address" rows="2"   disabled>
+          <input type="text" class="form-control bg-light text-dark" id="billing_address_input" name="billing_address" rows="2"   disabled>
         </div>
       </div>
+      <div class="row mt-2" id="pos_row" style="display:none;">
+        <div class="col-md-3">
+          <label for="pos">Place of Supply</label>
+        </div>
+        <div class="col-md-6">
+          <!-- <input type="text" class="form-control bg-light text-dark" id="pos_input" name="place_of_supply"> -->
+          <select name="place_of_supply" id="pos_input"class="form-control bg-light text-dark">
+            <option value="{{cust.placeofsupply}}" selected>{{cust.placeofsupply}}</option>
+            <option value="[AN] Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
+            <option value="[AD] Andhra Pradhesh">[AD] Andhra Pradhesh</option>
+            <option value="[AR] Arunachal Pradesh">[AR] Arunachal Pradesh</option>
+            <option value="[AS] Assam">[AS] Assam</option>
+            <option value="[BR] Bihar">[BR] Bihar</option>
+            <option value="[CH] Chandigarh">[CH] Chandigarh</option>
+            <option value="[CG] Chhattisgarh">[CG] Chhattisgarh</option>
+            <option value="[DNH] Dadra and Nagar Haveli">[DNH] Dadra and Nagar Haveli</option>
+            <option value="[DD] Damn anad Diu">[DD] Damn anad Diu</option>
+            <option value="[DL] Delhi">[DL] Delhi</option>
+            <option value="[GA] Goa">[GA] Goa</option>
+            <option value="[GJ] Gujarat">[GJ] Gujarat</option>
+            <option value="[HR] Haryana">[HR] Haryana</option>
+            <option value="[HP] Himachal Pradesh">[HP] Himachal Pradesh</option>
+            <option value="[JK] Jammu and Kashmir">[JK] Jammu and Kashmir</option>
+            <option value="[JH] Jharkhand">[JH] Jharkhand</option>
+            <option value="[KA] Karnataka">[KA] Karnataka</option>
+            <option  value="[KL] Kerala">[KL] Kerala</option>
+            <option value="[LA] Ladakh">[LA] Ladakh</option>
+            <option value="[LD] Lakshadweep">[LD] Lakshadweep</option>
+            <option value="[MP] Madhya Pradesh">[MP] Madhya Pradesh</option>
+            <option value="[MH] Maharashtra">[MH] Maharashtra</option>
+            <option value="[MN] Manipur">[MN] Manipur</option>
+            <option value="[ML] Meghalaya">[ML] Meghalaya</option>
+            <option value="[MZ] Mizoram">[MZ] Mizoram</option>
+            <option value="[NL] Nagaland">[NL] Nagaland</option>
+            <option value="[OD] Odisha">[OD] Odisha</option>
+            <option value="[PY] Puducherry">[PY] Puducherry</option>
+            <option value="[PB] Punjab">[PB] Punjab</option>
+            <option value="[RJ] Rajasthan">[RJ] Rajasthan</option>
+            <option value="[SK] Sikkim">[SK] Sikkim</option>
+            <option value="[TN] Tamil Nadu">[TN] Tamil Nadu</option>
+            <option value="[TS] Telangana">[TS] Telangana</option>
+            <option value="[TR] Tripura">[TR] Tripura</option>
+            <option value="[UP] Uttar Pradesh">[UP] Uttar Pradesh</option>
+            <option value="[UK] Uttarakhand">[UK] Uttarakhand</option>
+            <option value="[WB] West Bengal">[WB] West Bengal</option>
+            <option value="[OT] Other Territory">[OT] Other Territory</option>
+          </select>
+        </div> 
+      </div>
       
-      <div class="row mt-2">
+      <div class="row mt-2" style="display: none;">
         <div class="col-md-3">
             <label for="prof_name">Invoice Number</label>
         </div>
-
         <div class="col-md-6">
-            <input type="text" value="{{ creditnote.invoice_number }}"
-                class="form-control bg-light text-dark" id="prof_name" name="sale_no">
+            <div id="invoiceNumberContainer">
+              <input type="text" class="form-control bg-light text-dark" id="sale_no" name="sale_no"  >
+            </div>
         </div>
     </div>
+    
+    
+  
 
-
-    <div class="row mt-2">
+      <div class="row mt-2">
         <div class="col-md-3">
             <label>Credit Note*</label>
         </div>
         <div class="col-md-6">
-            <input type="text" value="{{ creditnote.credit_note }}"
-                class="form-control bg-light text-dark" id="credit_note" name="credit_note">
+            <input type="text" class="form-control bg-light text-dark" id="credit_note" name="credit_note" value="CRN-{{reford}}">
+            <span id="credit_note_label" style="display: none; color: red;"></span>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
+    <script>
+      $(document).ready(function () {
+          // Ajax call to check if the user has an invoice
+          $.ajax({
+              url: "{% url 'check_invoice' %}",
+              type: "GET",
+              dataType: "json",
+              success: function (data) {
+                  if (data.success && data.user_has_invoice) {
+                      // User has an invoice, show the invoice number field
+                      $('#invoiceNumberContainer').show();
+                      
+                      // Set the invoice number value
+                      $('#sale_no').val(data.invoice_number);
+                  }
+              },
+              error: function () {
+                  // Handle errors more explicitly, e.g., show an error message to the user
+                  console.log("Error checking invoice");
+              }
+          });
+      });
+  </script>
+    <script>
+      $(document).ready(function() {
+        $("#credit_note").change(function() {
+          var x=$('#credit_note').val();
+          reford = "{{reford}}"
+          if(reford != x.slice(3,)){
+            document.getElementById("credit_note_label").style.display="block"
+            document.getElementById("credit_note_label").style.color="red"
+            document.getElementById("credit_note_label").innerHTML="Invalid creditnote Number"
+          }
+        });
+      });
+  </script>
+    
+    
+    
   
-    <div class="row mt-2">
+      <div class="row mt-2">
         <div class="col-md-3">
-            <label for="prof_name">Reference</label>
+          <label for="prof_name" >Reference</label>
         </div>
 
         <div class="col-md-6">
-            <input type="text" value="{{ creditnote.reference }}"
-                class="form-control bg-light text-dark" id="ref" name="ord_no">
+          <input type="text" class="form-control bg-light text-dark" value="{{reford}}"   id="ref" name="ord_no" readonly >
         </div>
-    </div>
+      </div>
 
-    <div class="row mt-2">
+      <div class="row mt-2">
         <div class="col-md-3">
             <label for="date1">Creditnote Date</label>
         </div>
         <div class="col-md-6">
-            <input type="date" value="{{ creditnote.creditnote_date|date:'Y-m-d' }}"
-                class="form-control bg-light text-dark" id="date1" name="cr_date">
+            <input type="date" class="form-control bg-light text-dark" id="date1" name="cr_date">
         </div>
     </div>
+    <div class="row mt-2">
+      <div class="col-md-3">
+        <label for="date2">Payment Method</label>
+      </div>
+    <div class="col-md-6">
+      <div class="d-flex">
+        <select class="form-control bg-light text-dark my-select" id="pay_method" name="method">
+          <option value="" selected hidden>Select Payment Method</option>
+          <option value="cash">Cash</option>
+          <option value="cheque">Cheque</option>
+          <option value="upi">UPI</option>
+          {% for item in bank %}
+            <option value="{{item.name}}">{{item.name}}</option>
+          {% endfor %}
+        </select>
+      </div> 
+    </div>
+  </div>  
+
+  <div class="row mt-2" id="chequediv" style="display: none;">
+    <div class="col-md-3">
+      <label for="date2">Cheque ID</label>
+    </div>
+
+    <div class="col-md-6">
+        <input type="text" class="form-control text-black" name="cheque_id" id="cheque_id" placeholder="Enter Cheque ID">
+    </div>
+  </div>  
+
+  <div class="row mt-2" id="upidiv" style="display: none;">
+    <div class="col-md-3">
+      <label for="date2">UPI ID</label>
+    </div>
+
+    <div class="col-md-6">
+        <input type="text" class="form-control text-black" name="upi_id" id="upi_id" placeholder="Enter UPI ID">
+    </div>
+  </div>  
+
+  <div class="row mt-2" id="bnkdiv" style="display: none;">
+    <div class="col-md-3">
+      <label for="date2">Bank Account</label>
+    </div>  
+
+    <div class="col-md-6">
+      <input type="text" class="form-control text-black" name="bnk_id" id="bnk_id" readonly>
+    </div>
+  </div>  
       <!-------------------------- new-----------------------------------------  -->
       <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script>
-    $(document).ready(function () {
-        // Change event listener for the customer dropdown
-        $('#customer_sel').change(function () {
-            var selectedCustomer = $('#customer_sel option:selected');
-            var email = selectedCustomer.data('email');
-            var placeOfSupply = selectedCustomer.data('pos');
-            var gstTreatment = selectedCustomer.data('gst');
-            var gstin = selectedCustomer.data('gstin'); // Get the GSTIN from the data attribute
-            var billingAddress = selectedCustomer.data('billing_address');
+      <script>
+        $(document).ready(function() {
+          $("#pay_method").change(function() {
+            var x=$('#pay_method').val();
+            if(x==='cash'){
+              $('#chequediv').hide()
+              $('#bnkdiv').hide()
+              $('#upidiv').hide()
+              document.getElementById('cheque_id').value=null
+              document.getElementById('upi_id').value=null
+            }else if(x==='cheque'){
+              $('#chequediv').show()
+              $('#bnkdiv').hide()
+              $('#upidiv').hide()
+              document.getElementById('upi_id').value=null
+            }else if(x==='upi'){
+              $('#upidiv').show()
+              $('#bnkdiv').hide()
+              $('#chequediv').hide()
+              document.getElementById('cheque_id').value=null
+            }else{
+              $('#bnkdiv').show()
+              $('#chequediv').hide()
+              $('#upidiv').hide()
+              document.getElementById('cheque_id').value=null
+              document.getElementById('upi_id').value=null
+    
+              $.ajax({
+                  type: "GET",
+                  url: "{% url 'bankdata' %}",
+                  data: {
+                      id: x,
+                  },
+                  success: function (response) {
+                      data = response.bank
+                      document.getElementById('cheque_id').value=null
+                      document.getElementById('upi_id').value=null
+                      document.getElementById("bnk_id").value = data
+                  }
+              });
+            }
+          });
+        });
+    </script>
+    
+      <script>
+        // Fetch the 'Creditnote Date' input field
+const creditnoteDateInput = document.getElementById('date1');
 
-            // Content of the placeholders
-            $('#email_input').val(email);
-            $('#pos_input').val(placeOfSupply);
-            $('#gst_input').val(gstTreatment);
-            $('#gstin_input').val(gstin); // Set the value of the GSTIN input field
-            $('#billing_address_input').val(billingAddress);
+// Function to update the date to the current day
+function updateCurrentDate() {
+    const today = new Date().toISOString().split('T')[0];
+    creditnoteDateInput.value = today;
+}
 
-            // Show or hide fields based on selection
-            if (selectedCustomer.val() !== '') {
-                $('#email_row').show();
-                $('#pos_row').show();
-                $('#gst_row').show();
+// Update the date to the current day when the page loads
+updateCurrentDate();
 
-                // Conditionally show/hide the GSTIN row based on GST treatment
-                if (
-                    gstTreatment.toLowerCase() === "unregistered business-not registered under gst" ||
-                    gstTreatment.toLowerCase() === "overseas- persons with who you do import or exports of supplies outside india"
-                ) {
-                    $('#gstin_row').hide(); // Hide the GSTIN row
+
+    function getCustomerData() {
+        var customerId = $("#customer_sel").val();
+
+        // Make an AJAX request to fetch customer data
+        $.ajax({
+            url: '/customerdatas/',
+            data: {'id': customerId},
+            dataType: 'json',
+            success: function (data) {
+                // Update the fields with the fetched data
+                $("#email_input").val(data.email);
+                $("#gst_input").val(data.gsttreat);
+                $("#gstin_input").val(data.gstno);
+
+                // Update Billing Address field and show/hide the row
+                var billingAddress = data.billingAddress;
+                if (billingAddress && billingAddress.trim() !== "") {
+                    $("#billing_address_input").val(billingAddress);
+                    $("#billing_address_row").show();
                 } else {
-                    $('#gstin_row').show(); // Show the GSTIN row
+                    $("#billing_address_input").val('');
+                    $("#billing_address_row").hide();
                 }
 
-                $('#billing_address_row').show();
-            } else {
-                $('#email_row').hide();
-                $('#pos_row').hide();
-                $('#gst_row').hide();
-                $('#gstin_row').hide(); // Hide the GSTIN row
-                $('#billing_address_row').hide();
+                // Update Place of Supply field and show/hide the dropdown
+                var placeOfSupply = data.place;
+                if (placeOfSupply && placeOfSupply.trim() !== "") {
+                    $("#pos_input").val(placeOfSupply);
+                    $("#pos_dropdown_container").hide();
+                } else {
+                    // If placeOfSupply is empty, show the dropdown
+                    $("#pos_input").val('');
+                    $("#pos_dropdown_container").show();
+                }
+
+                // Show the corresponding rows
+                $("#email_row").show();
+                $("#gst_row").show();
+                $("#gstin_row").show();
+                $("#pos_row").show(); 
+            },
+            error: function () {
+                console.log("Error fetching customer data");
             }
         });
-    });
-</script>
+    }
 
+      
+       
+        </script>
+
+        
+        <!-- <script>
+          $(document).ready(function () {
+              // Function to update "Place of Supply" based on the selected customer
+              function updatePlaceOfSupply() {
+                  var selectedCustomer = $('#customer_sel option:selected');
+                  var placeOfSupply = selectedCustomer.data('pos');
+      
+                  // Set the value of the "Place of Supply" field using val method
+                  $('#srcofsupply').val(placeOfSupply).trigger('change');
+              }
+      
+              // Change event listener for the customer dropdown
+              $('#customer_sel').change(function () {
+                  updatePlaceOfSupply();
+              });
+      
+              // Initial setup for the customer dropdown
+              $('#customer_sel').select2();
+      
+              // Trigger the change event initially to set the initial "Place of Supply" value
+              updatePlaceOfSupply();
+          });
+      </script> -->
+      
+      
       
         
       </div> 
-      <div class="row mt-2">
-        <div class="col-md-12 table-responsive-md mt-3">
-            <table class="table table-bordered" id="item_table" onclick='toggleDateInput()'>
-                <thead>
-                    <tr>
-                        <th>Item<br><a href="" data-toggle="modal" data-target="#newitem"
-                                class="text-capitalize">+ Item</a></th>
-                        <th class="text-right">HSN</th>
-                        <th class="text-right">Quantity</th>
-                        <th class="text-right">Rate</th>
-                        <th class="text-right">Tax</th>
-                        <th class="text-right">Discount</th>
-                        <th class="text-right">Amount</th>
-                        <th colspan="2"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                   
-                    <tr id="row1">
-                      <td style="width: 10%;">
-                        {% for creditnote in credititems %}
-                            <div>
-                              <select class='form-control bg-light text-dark border-0 item_select itm' name='item_name[]'>
-                                <option value="" >Select Item</option>
-                                {% for i in itm %}
-                                    <option value="{{ i.Name }}" {% if i.Name == creditnote.item_name %} selected {% endif %}>
-                                        {{ i.Name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            </div>
-                        
-                    </td>
+<div class="row mt-2">
+  <div class="col-md-12 table-responsive-md mt-3">
+    <table class="table table-bordered " id="item_table" onclick='toggleDateInput()'>
+      <thead>
+        <tr>
+          <th>Item<br><a href="" data-toggle="modal" data-target="#newitem" class="text-capitalize">+ Item</a></th>
+          <th class="text-right">HSN</th>
+          <th class="text-right">Quantity</th>
+          <th class="text-right">Rate</th>
+          <th class="text-right">Tax</th>
+          <th class="text-right">Discount</th>
+          <th class="text-right">Amount</th>
+          <th colspan="2"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="row1">
+            <td style="width: 10%;">
+                <div ><select
+                        id="partySelect" class='form-control bg-light text-dark border-0 item_select itm'
+                        name='item_name[]' id='item1' onchange="fetchItemData(this.value)">
+                        <option value=" " selected disabled>Select Item</option>
+                        {% for i in itm %}
+                          <option value="{{i.Name}}">{{ i.Name  }} </option>
+                        {% endfor %}
+                    </select></div>
+            </td>
+            
           
              
-                        <td style="width: 13%;" class='text-right'><input type='number' id='hsn1'
-                            class=' text-right qty form-control bg-light text-dark' name='hsn'
-                            value="{{ creditnote.hsn }}">
-                    </td>
-                    <td style="width: 15%;" class='text-right'><input type='number' id='qty1'
-                            class=' text-right rate form-control bg-light text-dark' name='quantity[]'
-                            value="{{creditnote.quantity}}">
-                    </td>
-                    <td style="width: 12%;" class='text-right text-dark'><input type='number' id='rate1'
-                            class=' text-right discount bg-light text-dark form-control' name='rate[]'
-                            value='{{creditnote.rate}}'>
-                    </td>
-                    <td style="width: 15%;" class='text-right '> 
-                        <select name='tax[]' class='form-control bg-light text-dark  text-right border-0 tax'>
-                            {% if creditnote.customer.placeofsupply == "[KL] Kerala" %}
-                            <option class="text-dark">{{creditnote.tax}}%GST</option>
-                            <option value="0" class="text-dark">0% GST</option>
-                            <option value="3" class="text-dark">3% GST</option>
-                            <option value="5" class="text-dark">5% GST</option>
-                            <option value="12" class="text-dark">12% GST</option>
-                            <option value="18" class="text-dark">18% GST</option>
-                            <option value="28" class="text-dark">28% GST</option>
-                            {% else %}
-                            <option class="text-dark">{{creditnote.tax}}%IGST</option>
-                            <option value="0" class="text-dark">0% IGST</option>
-                            <option value="3" class="text-dark">3% IGST</option>
-                            <option value="5" class="text-dark">5% IGST</option>
-                            <option value="12" class="text-dark">12% IGST</option>
-                            <option value="18" class="text-dark">18% IGST</option>
-                            <option value="28" class="text-dark">28% IGST</option>   
-                            {% endif %}              
-                        </select>
-                    </td>
+            <td style="width: 13%;" class='text-right'><input type='number' id='hsn1'
+                    class=' text-right form-control bg-light text-dark hsn' name='hsn[]'
+                    value='0'>
+            </td>
+            <td style="width: 15%;" class='text-right'><input type='number' id='qty1'
+                    class=' text-right form-control bg-light text-dark' name='quantity[]'
+                    value='0' onchange="qtychange(this.id)">
                     
-                    
-                    <td style="width: 15%;" class='text-right'><input type='number' id='discount'
-                            class=' text-right form-control amount bg-light text-dark' name='discount[]'
-                            value='{{creditnote.discount}}'></td>
-                    <td style="width: 15%;" class='text-right'><input type='number' id='amount1'
-                            class=' text-right form-control amount bg-light text-dark' name='amount[]'
-                            value='{{creditnote.amount}}'></td>
-                    <td class='text-center'><button type='button' id='del_btn1'
-                            class='btn btn-transparent text-danger btn-sm btn-outline-danger rounded-circle delete-row'
-                            style='width:30px'>X</button></td>
+                <span class="text-warning">Available Stock : <span id="stock_data1" class="stock_data text-warning"></span></span>
+                <span class="stock_warning text-danger"></span>
+              </td>
+              
+            <td style="width: 12%;" class='text-right text-dark'><input type='number' id='rate1'
+                    class=' text-right discount bg-light text-dark form-control rate' name='rate[]'
+                    value='0'>
+            </td>
+            <td style="width: 15%;" class='text-right '> <select name='tax[]' id='tax1'
+              class='form-control bg-light text-dark  text-right border-0 tax' onclick="toggleDateInput()">
+              <optgroup class="text-center" label="GST">
+                <option value="0">0% GST(0%)</option>
+                <option value="3">3.0% GST(3%)</option>
+                <option value="5">5.0% GST(5%)</option>
+                <option value="12">12.0% GST(12%)</option>
+                <option value="18">18.0% GST(18%)</option>
+                <option value="28">28.0% GST(28%)</option>
+              </optgroup>
+              <optgroup  class="text-center" label="IGST">
+                <option value="0">0% IGST(0%)</option>
+                <option value="3">3.0% IGST(3%)</option>
+                <option value="5">5.0% IGST(5%)</option>
+                <option value="12">12.0% IGST(12%)</option>
+                <option value="18">18.0% IGST(18%)</option>
+                <option value="28">28.0% IGST(28%)</option>             
+                </optgroup>
+          </select></td>
+      <td style="display: none;">
+          <input type="text" name='taxamount' id="taxamount1"
+              class=" taxamount text-dark" />
+      </td>
+            <td style="width: 15%;" class='text-right'><input type='number' id='discount'
+              class=' text-right form-control amount bg-light text-dark' name='discount[]'
+              value='0.00'></td>
+            <td style="width: 15%;" class='text-right'><input type='number' id='amount1'
+                    class=' text-right form-control amount bg-light text-dark' name='amount[]'
+                    value='0.00'></td>
+            <td class='text-center'><button type='button' id='del_btn1'
+                    class='btn btn-transparent text-danger btn-sm btn-outline-danger rounded-circle delete-row'
+                    style='width:30px'>X</button></td>
                     <td class='text-center'>
-                        <button type='button'
-                            class='btn btn-transparent text-primary btn-sm btn-outline-primary rounded-circle clone-row'
-                            data-row=1 style='width:30px'><i class="fa fa-clone"></i>
-                        </button>
+                      <button type='button' class='btn btn-transparent text-primary btn-sm btn-outline-primary rounded-circle clone-row' data-row=1 style='width:30px' ><i class="fa fa-clone"></i>
+                      </button>
                     </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            </table>
+</tr>
+</tbody>
+</table>
+
+
 <script>
-  /////////////////////////////////Remove/////////////////////////////////////////////
+
+/////////////////////////////////Remove/////////////////////////////////////////////
 $(document).ready(function () {
-  // Add event listener for the "X" button clicks
-  $('#item_table').on('click', '.delete-row', function () {
-    $(this).closest('tr').remove(); // Remove the closest <tr> (row) to the clicked button
-  });
+// Add event listener for the "X" button clicks
+$('#item_table').on('click', '.delete-row', function () {
+  $(this).closest('tr').remove(); // Remove the closest <tr> (row) to the clicked button
+});
 });
 </script>
+ 
 
 <script>
   ////////////////////////////clone/////////////////////////////////////
@@ -390,8 +633,8 @@ $(document).ready(function () {
       clonedItemField.val(originalItemField.val());
       
       // Clone the HSN, quantity, rate, discount, and amount fields
-      var originalHSNField = rowToClone.find('input[name="hsn"]');
-      var clonedHSNField = newRow.find('input[name="hsn"]');
+      var originalHSNField = rowToClone.find('input[name="hsn[]"]');
+      var clonedHSNField = newRow.find('input[name="hsn[]"]');
       clonedHSNField.val(originalHSNField.val());
       
       var originalQtyField = rowToClone.find('input[name="quantity[]"]');
@@ -421,159 +664,168 @@ $(document).ready(function () {
   });
   </script>
   
-  <button type="button" class="btn btn-sm text-white" style="background-color: rgb(210, 132, 30);" id="add-row-button">Add another line</button>
+  
   
 
-  <div class="row border-bottom pb-5">
-    <div class="col-sm-5 d-flex flex-column mt-auto">
-        <label for="">Customer Notes</label>
-        <textarea name="customer_note" id="" cols="8" rows="8"
-            placeholder=" Will be Displayed on the Purchase Order">{{ creditnote.customer_notes }}</textarea>
+<button type="button" class="btn btn-sm text-white" style="background-color: rgb(210, 132, 30);" id="add-row-button">Add another line</button>
+        </div>
     </div>
-    <div class="col-sm-6 mt-4">
-        <table class=" table  text-white" style="background-color: rgba(58, 57, 57, 0.8);">
-            <tr>
-                <td>Sub Total</td>
-                <td></td>
-                <td><input type="number" id="subtotal" name="subtotal" step="any"
-                        class="bg-transparent border-0 text-right subtotal text-white"
-                        value="{{ creditnote.subtotal }}"></td>
-            </tr>
-            <tr id="tr_igst" {% if creditnote.igst == 0 %}style="display: none;"{% endif %}>
-                <td>IGST</td>
-                <td></td>
-                <td><input type="number" id="igst" name="igst" step="any"
-                        value="{{ creditnote.igst }}"
-                        class="form-control bg-transparent border-0 text-right igst text-white"></td>
-            </tr>            
-            <tr id="tr_cgst" {% if creditnote.cgst == 0 %}style="display: none;"{% endif %}>
-                <td>CGST</td>
-                <td></td>
-                <td><input type="number" value="{{ creditnote.cgst }}" id="cgst" name="cgst"
-                        step="any" 
-                        class="form-control bg-transparent border-0 text-right cgst text-white">
-                </td>
-            </tr>
-            <tr id="tr_sgst" {% if creditnote.sgst == 0 %}style="display: none;"{% endif %}>
-                <td>SGST</td>
-                <td></td>
-                <td><input value="{{ creditnote.sgst }}" type="number" id="sgst" name="sgst"
-                        step="any" 
-                        class="form-control bg-transparent border-0 text-right sgst text-white">
-                </td>
-            </tr>
-            <tr>
+    <div class="row border-bottom pb-5">
+      <div class="col-sm-5 d-flex flex-column mt-auto">
+
+          <label for="">Customer Notes</label>
+          <textarea name="customer_note" id="" cols="8" rows="8"
+              placeholder=" Will be Displayed on the Purchase Order"></textarea>
+      </div>
+      <div class="col-sm-6 mt-4" >
+          <table class=" table  text-white" style="background-color: rgba(58, 57, 57, 0.8);">
+              <tr id="subtotal-row">
+                  <td>Sub Total</td>
+                  <td></td>
+                  <td><input type="number" id="subtotal" name="subtotal" step="any" value="0.00"
+                          class="bg-transparent border-0 text-right subtotal text-white"></td>
+              </tr>
+              <tr style="display: none;" id="tr_igst">
+                  <td>IGST</td>
+                  <td></td>
+                  <td><input type="number" id='igst' name="igst" step="any" value="0.00"
+                          class="form-control bg-transparent border-0 text-right igst  text-white" ></td>
+              </tr>
+              <tr style="display: none;" id="tr_cgst">
+                  <td>CGST</td>
+                  <td></td>
+                  <td><input type="number" id='cgst' name="cgst" step="any" value="0.00"
+                          class="form-control bg-transparent border-0 text-right cgst text-white" ></td>
+              </tr>
+              <tr style="display: none;" id="tr_sgst">
+                  <td>SGST</td>
+                  <td></td>
+                  <td><input type="number" id='sgst' name="sgst" step="any" value="0.00"
+                          class="form-control bg-transparent border-0 text-right sgst  text-white" ></td>
+              </tr>
+              
+              <tr>
                 <td>Tax Total</td>
                 <td></td>
-                <td><input type="number" id="tax_total" name="tax_total" step="any"
-                        value="{{ creditnote.total_tax }}"
-                        class="form-control bg-transparent border-0 text-right tax_total text-white">
-                </td>
-            </tr>
-            <tr>
-                <td>Shipping Charges</td>
-                <td><input type="hidden" id="shipping_charge" step="any"
-                        value="{{ creditnote.shipping_charge }}"
-                        class="form-control bg-transparent border-0 text-right shipping_charge  ">
-                </td>
-                <td><input type="number" class="form-control  bg-transparent border-0  text-light"
-                        id="shipping" value="{{ creditnote.shipping_charge }}"
-                        name="shipping_charge"> </td>
-            </tr>
-            <tr>
+                <td><input type="number" id="tax_total" name="tax_total" step="any" value="0.00" 
+                           class="form-control bg-transparent border-0 text-right tax_total text-white"></td>
+              </tr>
+              <tr>
+                  <td>Shipping Charges</td>
+                  
+                  <td><input type="hidden" id="shipping_charge"  step="any" value="0.00" 
+                      class="form-control bg-transparent border-0 text-right shipping_charge  "></td>
+                      <td><input type="number" class="form-control  bg-transparent border-0  text-light" id="shipping" value="0" name="shipping_charge"> </td>
+              </tr>
+              <tr>
                 <td>Adjustment</td>
                 <td></td>
-                <td><input type="number" id="adjustment" name="adjustment" step="any"
-                        value="{{ creditnote.adjustment }}"
-                        class="form-control bg-transparent border-0 text-right adjustment"></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td> </td>
-            </tr>
-            <tr>
-                <th>Total ( &#x20B9; )</th>
-                <th></th>
-                <th><input type="number" id="grandtotal" name="t_total" step="any"
-                        value="{{ creditnote.total }}"
-                        class="form-control bg-transparent border-0 text-right grandtotal  text-white">
-                </th>
-            </tr>
+                <td><input type="number" id="adjustment" name="adjustment" step="any" 
+                    class="form-control bg-transparent border-0 text-right adjustment" value="0.00"></td>
+              </tr>
+              
+              <tr>
+                 
+                 
+              </tr>
+              <tr>
+                  <th>Total ( &#x20B9; )</th>
+                  <th></th>
+                  <th><input type="number" id="grandtotal" name="t_total" step="any" value="0.00" 
+                          class="form-control bg-transparent border-0 text-right grandtotal  text-white"></th>
+              </tr>
+              <!-- <div class="col-sm-12 mt-4" > -->
+                <table class=" table  text-white" style="background-color: rgba(58, 57, 57, 0.8);">
+                  <tr>
+                      <td>Advance Paid</td>
+                      <td></td>
+                      <td><input type="number" id="advance" name="advance" step="any" value="0.00"
+                                 class="form-control bg-transparent border-0 text-right advance text-white" >
+                                 <div style="color: red; display: none;" id="advancediv">Advance is greater than Total</div></td>
+                  </tr>
+                  <tr>
+                      <td>Balance</td>
+                      <td></td>
+                      <td>
+                        <input type="number" id='balance' name="balance" step="any" value="0.00"
+                               class="form-control bg-transparent border-0 text-right balance  text-white"  readonly>
+                        
+                      </td>
+                  </tr>
+          </table>
+      </div>
+  </div>
 
-            <tr>
-              <td>Advance Paid</td>
-              <td></td>
-              <td><input type="number" id="advance" name="advance" step="any" value="{{creditnote.paid}}"
-                         class="form-control bg-transparent border-0 text-right advance text-white" >
-                         <div style="color: red; display: none;" id="advancediv">Advance is greater than Total</div></td>
-          </tr>
-          <tr>
-              <td>Balance</td>
-              <td></td>
-              <td>
-                <input type="number" id='balance' name="balance" step="any" value="{{creditnote.balance}}"
-                       class="form-control bg-transparent border-0 text-right balance  text-white"  readonly>
-                
-              </td>
-          </tr>
-        </table>
+    <div class="row py-5 border-bottom">
+        <div class="col-md-8 d-flex flex-column w-60 text-white">
+            <label for="">Terms & Conditions</label>
+            <textarea name="ter_cond" id="" cols="20" rows="5"
+                placeholder=" Enter the terms & conditions of your business to be displayed in your transaction."></textarea>
+        </div>
+        <div class="col-md-4 py-5 text-center rounded" style="background-color: rgba(32, 35, 37);">
+            <label class="text-white" for="">Attach File(s) to Purchase</label><br>
+
+            
+            <input id="file-upload" class="form-control bg-light text-dark" type="file" name="file">
+
+
+
+        </div>
     </div>
-</div>
-
-<div class="row py-5 border-bottom">
-    <div class="col-md-8 d-flex flex-column w-60 text-white">
-        <label for="">Terms & Conditions</label>
-        <textarea name="ter_cond" id="" cols="20" rows="5"
-            placeholder=" Enter the terms & conditions of your business to be displayed in your transaction.">{{ creditnote.terms_and_conditions }}</textarea>
-    </div>
-    <div class="col-md-4 py-5 text-center rounded" style="background-color: rgba(32, 35, 37);">
-        <label class="text-white" for="">Attach File(s) to Purchase</label><br>
-
-        <input id="file-upload" class="form-control bg-light text-dark" type="file" name="file">
-    </div>
-</div>
-<div class="row mt-5 mb-3 m-5 ">
-    <input style="width: 150px;margin-right: 2rem;" type="submit" class="btn btn-success mt-2"
-        value="Save">
-        <a href="" class="btn btn-danger mt-2" style="width: 150px;">Cancel</a>
-
-</div>
-</form>
-</div>
-</div>
-</div>
-<!---------------------------- add another line -------------------------- -->
-    <script>
-      $(document).ready(function () {
-        // Function to calculate and update the total for a row
-        function calculateRowTotal(row) {
-          var quantity = parseFloat(row.find('input[name="quantity[]"]').val());
-          var rate = parseFloat(row.find('input[name="rate[]"]').val());
-          var discount = parseFloat(row.find('input[name="discount[]"]').val());
-          
-          var total = quantity * rate;
-          if (!isNaN(discount)) {
-            total -= discount;
-          }
-          
-          row.find('input[name="amount[]"]').val(total.toFixed(2));
-        }
-        
-        // Add event listener for changes in quantity, rate, and discount fields
-        $('#item_table tbody').on('change', 'input[name="quantity[]"], input[name="rate[]"], input[name="discount[]"]', function () {
-          var row = $(this).closest('tr');
-          calculateRowTotal(row);
-        });
+      <div class="row mt-5 mb-3 m-5 ">
+       
+    
+     
+        <input style="width: 150px;margin-right: 2rem;" type="submit" class="btn btn-success mt-2" value="save" name="save">
+        <input style="width: 150px;margin-right: 3rem; background-color: chocolate;" type="submit" class="btn mt-2" value="draft" name="draft">
+           
+        <input style="width: 150px;margin-right: 2rem;" class="btn btn-danger mt-2" type="reset" value="Cancel">
+     
         
        
-          
-          // Clear the tax amount field in the cloned row
-          newRow.find('input[name="taxamount"]').val('');
-          
-          // Append the cloned row to the table
-          $('#item_table tbody').append(newRow);
-        });
+      </div>
+    </form>
+  
+
+
+<!---------------------------- add another line -------------------------- -->
+    <script>
+      
+
+      $(document).ready(function () {
+    // Function to calculate and update the total for a row
+    function calculateRowTotal(row) {
+        var quantity = parseFloat(row.find('input[name="quantity[]"]').val());
+        var rate = parseFloat(row.find('input[name="rate[]"]').val());
+        var discount = parseFloat(row.find('input[name="discount[]"]').val());
+
+        var total = quantity * rate;
+        if (!isNaN(discount)) {
+            total -= discount;
+        }
+
+        row.find('input[name="amount[]"]').val(total.toFixed(2));
+    }
+
+    // Add event listener for changes in quantity, rate, and discount fields
+    $('#item_table tbody').on('change', 'input[name="quantity[]"], input[name="rate[]"], input[name="discount[]"]', function () {
+        var row = $(this).closest('tr');
+        calculateRowTotal(row);
+    });
+
+    // Add event listener for "Add another line" button
+    $('#add-row-button').click(function () {
+        var newRow = $('#row-template').clone();  // Clone the template row
+        newRow.removeAttr('id');  // Remove the ID to avoid duplication
+        newRow.find('input').val('');  // Clear input values in the cloned row
+
+        // Clear the tax amount field in the cloned row
+        newRow.find('input[name="taxamount"]').val('');
+
+        // Append the cloned row to the table
+        $('#item_table tbody').append(newRow);
+    });
+});
       </script>
       
 
@@ -593,7 +845,6 @@ $(document).ready(function () {
       <div class="modal-dialog">
         <div class="modal-content">
           <h6 style="color: red;">Payment Terms</h6>
-          <!-- Rest of your modal content here -->
           <form id="modalForm"  action="" onsubmit="return false">
             <div id="terms-container">
               <div class="form-row">
@@ -939,9 +1190,14 @@ $(document).ready(function () {
                   <div class="col-md-3 mt-2">
                     <label for="c_open">Opening Balance</label>
                   </div>
-                  <div class="col-md-6 mt-2">
+                  <div class="col-md-6 mt-2 d-flex">
+                    <select name="bal" id="bal" style="width: 35%; height: 80%;"
+                      class="form-gr form-select text-dark bg-light">
+                      <option value="credit">Credit</option>
+                      <option value="debit">Debit</option>
+                    </select>
                     <input type="text" class="form-control bg-light text-dark" id="c_open" name="c_open">
-                  </div>       
+                  </div>
                 </div>
 
                 <div class="row mt-2">
@@ -1437,8 +1693,63 @@ $(document).ready(function () {
                 </div>
                 <div class="col-md-4 ">
                   <input  type="text" name="cost_desc" class="form-control bg-light text-dark"  id="cost_desc">
-                </div>
+                </div><br>
 
+              </div>
+              <div class="col-md-5">
+                <input type="checkbox" id="track" onclick="trackinventory()">  Track Inventory for this item
+              </div>
+
+              <div class="row mt-2 " id="trackdiv1" style="display: none;">
+                <div class="d-flex">
+                  <div class="col-md-4">
+                    <label for="name" >Inventory Account *</label>
+                  </div>
+                  <div class="col-md-6">
+                    <select class="form-control bg-light text-dark" id="invasset" name="invasset" required>
+                      <option value="0" hidden> Choose ..</option>
+                      <option value="inventory assets">Inventory Asset</option>
+                    </select>    
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-2 " id="trackdiv2" style="display: none;">
+                <div class="d-flex">
+                  <div class="col-md-4">
+                    <label for="name" >Opening Stock </label>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="number" class="form-control bg-light text-dark" id="opening_stock" name="opening_stock" value="0" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-2 " id="trackdiv3" style="display: none;">
+                <div class="d-flex">
+                  <div class="col-md-4">
+                    <label for="name" >Opening Stock Rate per unit</label>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="number" class="form-control bg-light text-dark" id="opening_stock_unit" name="opening_stock_unit" value="0" required>  
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-2" id="trackdiv4" style="display: none;">
+                <div class="col-md-4 mr-0">
+                  <label class="col-form-label p-0">Activation Type</label>
+                </div>
+                <div class="col-md-7 ml-0 d-flex">
+                  <div class="mx-5 ">
+                    <input type="radio" id="active" name="activation" value="active" >
+                    <label>Active</label>
+                  </div>
+                  <div class="mx-5 ">
+                    <input type="radio" id="nonactive" name="activation" value="nonactive" >
+                    <label>Non-Active</label>
+                  </div>
+                </div>
               </div>
 
               <div class="row mt-3">
@@ -1448,6 +1759,8 @@ $(document).ready(function () {
                     <div class="invalid-feedback text-warning" >You must agree before submitting.</div>
                   </div>
               </div>
+
+           
               <div class="row">
                 <div class="col-md-4"></div>
                 <div class="col-md-4">
@@ -1591,6 +1904,20 @@ $(document).ready(function () {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+  function trackinventory(){
+    $("#trackdiv1").toggle();
+    $("#trackdiv2").toggle();
+    $("#trackdiv3").toggle();
+    $("#trackdiv4").toggle();
+    document.getElementById("invasset").value="0"
+    document.getElementById("opening_stock").value=0
+    document.getElementById("opening_stock_unit").value=0
+    document.getElementById("active").checked=false
+    document.getElementById("nonactive").checked=false
+  }
+</script>
+
 
 <script>
 
@@ -1610,6 +1937,86 @@ $(document).ready(function () {
     // ...
 
     rowCount++; // Increment row counter
+    $('#add-row').click(function () {
+    rowCount++; // Increment row counter
+    console.log()
+    var newRow = `
+      <tr id='row${rowCount}'>
+        <td style="width: 10%;">
+          <div>
+            <select class='form-control bg-light text-dark  border-0 item_select itm' name='item[]' id='item${rowCount}'>
+              <option value=" " selected disabled>Select Item</option>
+              {% for i in itm %}
+                <option value="{{i.Name}}">{{ i.Name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </td>
+        <td style="width: 13%;" class='text-right'><input type='number' id='hsn${rowCount}'
+                    class=' text-right form-control bg-light text-dark hsn' name='hsn[]'
+                    value='0'>
+            </td>
+
+      
+
+        
+        <td style="width: 13%;" class='text-right'>
+          <input type='number' id='qty${rowCount}' class='text-right bg-light text-dark qty form-control' name='quantity[]' value='0'>
+        </td>
+        
+        <td style="width: 15%;" class='text-right'>
+          <input type='number' id='rate${rowCount}' class='text-right bg-light text-dark rate form-control' name='rate[]' value='0'>
+        </td>
+        
+        <td style="width: 12%;" class='text-right'>
+          <input type='number' id='discount${rowCount}' class='text-right bg-light text-dark discount form-control' name='des[]' value='0'>
+        </td>
+        
+        <td style="width: 15%;" class='text-right'>
+          <select name='tax[]'  id='tax${rowCount}' class='form-control bg-light text-dark text-right border-0 tax' onclick=' toggleDateInput()'>
+            <optgroup class="text-center" label="GST">
+                            <option value="0" selected></option>
+                            <option value="0">0% GST(0%)</option>
+                            <option value="3">3.0% GST(3%)</option>
+                            <option value="5">5.0% GST(5%)</option>
+                            <option value="12">12.0% GST(12%)</option>
+                            <option value="18">18.0% GST(18%)</option>
+                            <option value="28">28.0% GST(28%)</option>
+                          </optgroup>
+                          <optgroup  class="text-center" label="IGST">
+                           
+                            <option value="0">0% IGST(0%)</option>
+                            <option value="3">3.0% IGST(3%)</option>
+                            <option value="5">5.0% IGST(5%)</option>
+                            <option value="12">12.0% IGST(12%)</option>
+                            <option value="18">18.0% IGST(18%)</option>
+                            <option value="28">28.0% IGST(28%)</option>             
+                            </optgroup>
+          </select>
+        </td>
+        
+        <td style="display: none;">
+          <input type="text" name='taxamount' id="taxamount${rowCount}" class="form-control bg-light text-dark taxamount" />
+        </td>
+        
+        <td style="width: 15%;" class='text-right'>
+          <input type='number' id='amount${rowCount}' class='text-right bg-light text-dark form-control amount' name='amount[]' value='0.00'>
+        </td>
+        
+        <td class='text-center'>
+          <button type='button' id='del_btn${rowCount}' class='btn btn-transparent text-danger btn-sm btn-outline-danger rounded-circle delete-row' style='width:30px'>X</button>
+        </td>
+        <td class='text-center'>
+        <button type='button' class='btn btn-transparent text-primary btn-sm btn-outline-primary rounded-circle clone-row' data-row='${rowCount}' style='width:30px'><i class="fa fa-clone"></i>
+</button>
+      </td>
+      </tr>
+    `;
+  $('#item_table tbody').append(newRow);
+    toggleDateInput();
+    calculateSubtotal();
+    calculateGrandTotal();
+  });
 
     $('#item_table tbody').append(clonedRow);
     calculateRowAmount(row);
@@ -2214,6 +2621,7 @@ $(document).ready(function() {
                   cost_desc : $("#cost_desc").val(),
 
                   item_hsn: $("#item_hsn").val(),  
+                
                   
                 
                   
@@ -2994,67 +3402,188 @@ function reloadAccount() {
 
   });
 
+</script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-///////////////////////////////get hsn & rate////////////////////////////////////////////////////
+<script>
+  $(document).ready(function () {
+    function qtychange(id_str) {
+      var id = id_str.split("qty")[1];
+      var qty = $(`#qty${id}`).val();
+      
+      // Assuming you have a way to uniquely identify the selected item, e.g., using a dropdown with id 'itemSelect'
+      var selectedItem = $("#itemSelect option:selected").val();
+      var avl = $(`#stock_data${id}`).text();
 
+      console.log('Qty:', qty);
+      console.log('Available:', avl);
 
-function fetchItemData(selectedItem, row) {
-    $.ajax({
+      if (parseInt(qty) > parseInt(avl)) {
+        $(".stock_warning").text("Entered quantity greater than available quantity");
+        // Optionally, you can add a delay and then clear the warning message
+        // setTimeout(function() { $(".stock_warning").text(""); }, 3000);
+      } else {
+        $(".stock_warning").text(""); // Clear the warning message if quantity is within limits
+      }
+    }
+  });
+</script>
+
+<script>
+  $(document).ready(function () {
+    // Function to fetch item data and update Available Stock
+    function fetchItemData(selectedItem, row) {
+      $.ajax({
         type: 'GET',
         url: "{% url 'get_item_details' %}",
-        data: {
-            id: selectedItem
-        },
+        data: { id: selectedItem },
         dataType: 'json',
         success: function (response) {
-            // Update the HSN and rate fields in the current row with the fetched data
-            row.find(".hsn").val(response.hsn);
-            row.find(".rate").val(response.rate);
+          console.log('Fetched item data:', response);
+
+          row.find(".hsn").val(response.hsn);
+          row.find(".rate").val(response.rate);
+          row.find(".stock").text(response.stock);
+          updateAvailableStock(row);
         },
         error: function () {
-            // Handle errors if the data cannot be fetched or the item doesn't exist
-            console.log('Error fetching item data.');
-            // You can display an error message to the user if needed.
+          console.log('Error fetching item data.');
         },
-    });
-}
+      });
+    }
 
-// Add event handler for changes in item selection
-$(document).on('change', '.item_select', function () {
+    // Function to update Available Stock and display warning message if necessary
+    function updateAvailableStock(row) {
+      var quantity = parseInt(row.find(".quantity").val());
+      var availableStock = parseInt(row.find(".stock").text()); // Update class to ".stock"
+
+      if (isNaN(quantity) || isNaN(availableStock)) {
+        return;
+      }
+
+      row.find(".stock").text(availableStock - quantity); // Update class to ".stock"
+
+      if (quantity > availableStock) {
+        row.find(".stock_warning").text("Entered quantity greater than available quantity").css('color', 'red');
+      } else {
+        row.find(".stock_warning").text('').css('color', ''); // Reset the warning message
+      }
+    }
+
+    // Event handler for changes in item selection
+    $(document).on('change', '.item_select', function () {
+      var selectedItem = $(this).val();
+      var row = $(this).closest('tr');
+      fetchItemData(selectedItem, row);
+    });
+
+    // Event handler for changes in quantity
+    $(document).on('change', '.quantity', function () {
+      var row = $(this).closest('tr');
+      updateAvailableStock(row);
+    });
+  });
+</script>
+<script>
+  ///////////////////////////////get hsn & rate////////////////////////////////////////////////////
+  
+  
+  function fetchItemData(selectedItem, row) {
+      $.ajax({
+          type: 'GET',
+          url: "{% url 'get_item_details' %}",
+          data: {
+              id: selectedItem
+          },
+          dataType: 'json',
+          success: function (response) {
+              // Update the HSN and rate fields in the current row with the fetched data
+              row.find(".hsn").val(response.hsn);
+              row.find(".rate").val(response.rate);
+              row.find(".stock_data").text(response.stock);  // Add this line to update available stock
+          },
+          error: function () {
+              // Handle errors if the data cannot be fetched or the item doesn't exist
+              console.log('Error fetching item data.');
+              // You can display an error message to the user if needed.
+          },
+      });
+  }
+  
+  // Add event handler for changes in item selection
+  $(document).on('change', '.item_select', function () {
+      var selectedItem = $(this).val();
+      var row = $(this).closest('tr');
+      fetchItemData(selectedItem, row);
+  });
+  
+  
+  // Add event handler for changes in item selection
+  $(document).on('change', '.item_select', function () {
+    var selectedItem = $(this).val();
+    var row = $(this).closest('tr');
+    
+    $.ajax({
+      type: 'GET',
+      url: "{% url 'get_item_details' %}",
+      data: {
+        id: selectedItem
+      },
+      dataType: 'json',
+      success: function (response) {
+        // Update the HSN and rate fields in the current row with the fetched data
+        row.find(".hsn").val(response.hsn);
+        row.find(".rate").val(response.rate);
+  
+        // Trigger the updateAvailableStock function after fetching item details
+        updateAvailableStock(row);
+      },
+      error: function () {
+        // Handle errors if the data cannot be fetched or the item doesn't exist
+        console.log('Error fetching item data.');
+       
+      },
+    });
+  
+  })
+  
+  // Function to update Available Stock and display warning message if necessary
+  function updateAvailableStock(row) {
+    var selectedItem = row.find(".item_select").val();
+    var quantity = parseInt(row.find(".quantity").val());
+    var availableStock = parseInt(row.find(".stock_data").text());
+  
+    if (isNaN(quantity) || isNaN(availableStock)) {
+      // Handle invalid input (non-numeric values)
+      return;
+    }
+  
+    // Update Available Stock span
+    row.find(".stock_data").text(availableStock - quantity);
+  
+    // Display a warning message if the entered quantity is greater than available stock
+    if (quantity > availableStock) {
+      row.find(".stock_warning").text("Entered quantity greater than available quantity").css('color', 'red');
+    } else {
+      row.find(".stock_warning").text('').css('color', ''); // Reset the warning message
+    }
+  }
+  
+  // Add event handler for changes in item selection
+  $(document).on('change', '.item_select', function () {
     var selectedItem = $(this).val();
     var row = $(this).closest('tr');
     fetchItemData(selectedItem, row);
-});
-
-
-// Add event handler for changes in item selection
-$(document).on('change', '.item_select', function () {
-  var selectedItem = $(this).val();
-  var row = $(this).closest('tr');
-  
-  $.ajax({
-    type: 'GET',
-    url: "{% url 'get_item_details' %}",
-    data: {
-      id: selectedItem
-    },
-    dataType: 'json',
-    success: function (response) {
-      // Update the HSN and rate fields in the current row with the fetched data
-      row.find(".hsn").val(response.hsn);
-      row.find(".rate").val(response.rate);
-    },
-    error: function () {
-      // Handle errors if the data cannot be fetched or the item doesn't exist
-      console.log('Error fetching item data.');
-      // You can display an error message to the user if needed.
-    },
   });
-});
+  
+  // Add event handler for changes in quantity
+  $(document).on('change', '.quantity', function () {
+    var row = $(this).closest('tr');
+    updateAvailableStock(row);
+  });
+  
+    </script>
 
-
-
-  </script>
   
   <script>
     $(document).ready(function () {
@@ -3072,7 +3601,7 @@ $(document).on('change', '.item_select', function () {
       if (lowerPlaceOfSupply === '[kl]-kerala' || lowerPlaceOfSupply === 'kerala' || lowerPlaceOfSupply === '[kl] kerala') {
           // Add GST options for Kerala
           taxDropdown.append('<optgroup class="text-center" label="GST">' +
-              '<option value="0" selected></option>' +
+              '<option value="0" selected>0% GST(0%)</option>' +
               '<option value="3">3.0% GST(3%)</option>' +
               '<option value="5">5.0% GST(5%)</option>' +
               '<option value="12">12.0% GST(12%)</option>' +
@@ -3189,57 +3718,59 @@ $(document).on('change', '.item_select', function () {
         updateTaxDropdown(initialPlaceOfSupply);
   
         // Function to calculate the grand total
-        function calculateGrandTotal() {
-            var subtotal = parseFloat($('#subtotal').val()) || 0;
-            var taxTotal = parseFloat($('#tax_total').val()) || 0;
-            var shippingCharge = parseFloat($('#shipping').val()) || 0;
-            var Adjustment = parseFloat($('#adjustment').val()) || 0;
-  
-            console.log('Subtotal:', subtotal);
-            console.log('Tax Total:', taxTotal);
-            console.log('Shipping Charge:', shippingCharge);
-            console.log('Adjustment:', Adjustment);
-  
-            var grandTotal = subtotal + taxTotal + shippingCharge + Adjustment;
-  
-            console.log('Grand Total:', grandTotal);
-  
-            $('#grandtotal').val(grandTotal.toFixed(2));
-        }
-  
-        $('#adjustment').on('input', function () {
-            calculateGrandTotal();
-        });
+function calculateGrandTotal() {
+    var subtotal = parseFloat($('#subtotal').val()) || 0;
+    var taxTotal = parseFloat($('#tax_total').val()) || 0;
+    var shippingCharge = parseFloat($('#shipping').val()) || 0;
+    var Adjustment = parseFloat($('#adjustment').val()) || 0;
+
+    console.log('Subtotal:', subtotal);
+    console.log('Tax Total:', taxTotal);
+    console.log('Shipping Charge:', shippingCharge);
+    console.log('Adjustment:', Adjustment);
+
+    var grandTotal = subtotal + taxTotal + shippingCharge + Adjustment;
+
+    console.log('Grand Total:', grandTotal);
+
+    $('#grandtotal').val(grandTotal.toFixed(2));
+}
+
+$('#shipping, #adjustment').on('input', function () {
+    calculateGrandTotal();
+})
     });
   </script>
-  <script>
-    function updateBalance() {
-          var grandTotal = parseFloat($('#grandtotal').val()) || 0;
-          var advancePaid = parseFloat($('#advance').val()) || 0;
+  
 
-          var balance = grandTotal - advancePaid;
+ <script>
+      function updateBalance() {
+            var grandTotal = parseFloat($('#grandtotal').val()) || 0;
+            var advancePaid = parseFloat($('#advance').val()) || 0;
 
-          // Display the balance amount
-          $('#balance').val(balance.toFixed(2));
+            var balance = grandTotal - advancePaid;
 
-          // Show/hide the warning message based on the balance
-          if (advancePaid > grandTotal) {
-              $('#advancediv').show();
-          } else {
-              $('#advancediv').hide();
-          }
-      }
+            // Display the balance amount
+            $('#balance').val(balance.toFixed(2));
 
-      // Event handlers for changes in shipping and adjustment fields
-      $('#shipping, #adjustment').on('input', function () {
-          calculateGrandTotal();
-      });
+            // Show/hide the warning message based on the balance
+            if (advancePaid > grandTotal) {
+                $('#advancediv').show();
+            } else {
+                $('#advancediv').hide();
+            }
+        }
 
-      // Event handler for changes in the advance amount
-      $('#advance').on('input', function () {
-          updateBalance();
-            
-      });
-</script>
+        // Event handlers for changes in shipping and adjustment fields
+        $('#shipping, #adjustment').on('input', function () {
+            calculateGrandTotal();
+        });
+
+        // Event handler for changes in the advance amount
+        $('#advance').on('input', function () {
+            updateBalance();
+              
+        });
+  </script>
   
 {% endblock %}
