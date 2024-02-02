@@ -213,6 +213,30 @@
             <input type="date" class="form-control bg-light text-dark" id="date1" name="cr_date">
           </div>
       </div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    var $customerSel = $('#customer_sel').selectize({
+      // Enable search functionality
+      searchField: ['text', 'data-email', 'data-gst', 'data-gstin', 'data-pos', 'data-billing_address'],
+      create: false, // Disable the ability to create new options on the fly
+      sortField: 'text', // Sort options alphabetically
+      dropdownParent: 'body', // Ensure the dropdown appears above other elements on the page
+      openOnFocus: false, // Do not open the dropdown automatically on focus
+      closeAfterSelect: false, // Do not close the dropdown after selecting an option
+      highlight: false, // Do not automatically highlight the matched text
+      onChange: function(value) {
+        // Open the dropdown manually on change
+        this.open();
+        // Highlight the first matching option
+        this.highlightOption(this.search(value)[0]);
+      }
+    });
+  });
+</script>
+
       <!-------------------------- new-----------------------------------------  -->
       <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
       <script>
