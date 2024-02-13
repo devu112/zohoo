@@ -109,8 +109,6 @@
     </div>
   </div>
   <div>
-
-
   <div class="card radius-15 p-5">
     <form action="{% url 'editdb' pk=creditnote.pk %}" class="mt-2 mb-4" method="post" enctype="multipart/form-data">
       {% csrf_token %}
@@ -119,8 +117,6 @@
           <label >Customer Name *</label>
         </div>
         <div class="col-md-6">
-        
-          
             <select name="cx_name" id="customer_sel" class="form-control bg-light text-dark">
                 <option value="{{ creditnote.customer.customer_id }}">
                     {{ creditnote.customer.customerName }}
@@ -130,7 +126,7 @@
                 >{{cust.customerName}}</option>
                 {% endfor %}
             </select>
-            <a data-toggle="modal" data-target="#newcustomer" class="btn" style="background-color: chocolate; color: black; height: 60%; margin-left: 82vh; margin-top: -9vh; font-size: large; padding-top: 1vh;">+</a>
+          <a href="" data-toggle="modal" data-target="#newcustomer">+ Add New Customer</a>
         </div>
       </div>
       <div class="row mt-2" id="email_row" >
@@ -149,7 +145,6 @@
         <div class="col-md-6">
             <div>
             <input type="text" value="{{ creditnote.customer.placeofsupply }}" class="form-control bg-light text-dark" id="pos_input" name="place_of_supply" disabled>
-          
           </div>
         </div>
         
@@ -276,7 +271,7 @@
 
       
         
-</div> 
+      </div> 
       <div class="row mt-2">
         <div class="col-md-12 table-responsive-md mt-3">
             <table class="table table-bordered" id="item_table" onclick='toggleDateInput()'>
@@ -294,38 +289,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                  {% for creditnote in credititems %}
-                   
+                    {% for creditnote in credititems %}
                     <tr id="row1">
-                     
-
-                      <td style="width: 10%;">
-                       
-                            <div>
-                              <select class='form-control bg-light text-dark border-0 item_select' name='item_name[]'>
-                               <option value="{{creditnote.item_name.id}}"  {% if i.Name == creditnote.item_name %} selected {% endif %}>{{creditnote.item_name.Name}}</option>
-                                {% for i in itm %}
-                                    <option value="{{ i.id }}">
-                                        {{ i.Name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            </div>
-                        
-                    </td>
+                        <td style="width: 10%;">
+                            <div> <select class='form-control bg-light text-dark border-0 item_select itm'
+                                    name='item_name[]'>
+                                    <option value="" disabled>Select Item</option>
+                                    {% for i in itm %}
+                                    <option value="{{ i.Name }}"
+                                        {% if i.Name == credititem.item_name %} selected {% endif %}>
+                                        {{ i.Name }}</option>
+                                    {% endfor %}
+                                </select></div>
+                        </td>
           
              
                         <td style="width: 13%;" class='text-right'><input type='number' id='hsn1'
-                            class=' text-right  form-control bg-light text-dark hsn' name='hsn'
-                            value="{{ creditnote.hsn }}" readonly>
+                            class=' text-right qty form-control bg-light text-dark' name='hsn'
+                            value="{{ creditnote.hsn }}">
                     </td>
                     <td style="width: 15%;" class='text-right'><input type='number' id='qty1'
-                            class=' text-right  form-control bg-light text-dark qty' name='quantity[]'
-                            value="{{creditnote.quantity}}" required>
+                            class=' text-right rate form-control bg-light text-dark' name='quantity[]'
+                            value="{{creditnote.quantity}}">
                     </td>
                     <td style="width: 12%;" class='text-right text-dark'><input type='number' id='rate1'
-                            class=' text-right  bg-light text-dark form-control rate' name='rate[]'
-                            value='{{creditnote.rate}}' readonly>
+                            class=' text-right discount bg-light text-dark form-control' name='rate[]'
+                            value='{{creditnote.rate}}'>
                     </td>
                     <td style="width: 15%;" class='text-right '> 
                         <select name='tax[]' class='form-control bg-light text-dark  text-right border-0 tax'>
@@ -351,7 +340,7 @@
                     
                     
                     <td style="width: 15%;" class='text-right'><input type='number' id='discount'
-                            class=' text-right form-control discount bg-light text-dark' name='discount[]'
+                            class=' text-right form-control amount bg-light text-dark' name='discount[]'
                             value='{{creditnote.discount}}'></td>
                     <td style="width: 15%;" class='text-right'><input type='number' id='amount1'
                             class=' text-right form-control amount bg-light text-dark' name='amount[]'
@@ -366,7 +355,7 @@
                         </button>
                     </td>
                 </tr>
-              {% endfor %}
+                {% endfor %}
             </tbody>
             </table>
 <script>
@@ -507,23 +496,6 @@ $(document).ready(function () {
                         class="form-control bg-transparent border-0 text-right grandtotal  text-white">
                 </th>
             </tr>
-
-            <tr>
-              <td>Advance Paid</td>
-              <td></td>
-              <td><input type="number" id="advance" name="advance" step="any" value="{{creditnote.paid}}"
-                         class="form-control bg-transparent border-0 text-right advance text-white" >
-                         <div style="color: red; display: none;" id="advancediv">Advance is greater than Total</div></td>
-          </tr>
-          <tr>
-              <td>Balance</td>
-              <td></td>
-              <td>
-                <input type="number" id='balance' name="balance" step="any" value="{{creditnote.balance}}"
-                       class="form-control bg-transparent border-0 text-right balance  text-white"  readonly>
-                
-              </td>
-          </tr>
         </table>
     </div>
 </div>
@@ -550,7 +522,7 @@ $(document).ready(function () {
 </div>
 </div>
 </div>
-
+<!---------------------------- add another line -------------------------- -->
     <script>
       $(document).ready(function () {
         // Function to calculate and update the total for a row
@@ -1636,8 +1608,6 @@ $(document).ready(function () {
 
     // Clear input values in the cloned row if needed
     newRow.find('input[type="number"]').val(0);
-    newRow.find('input[type="text"]').val('');
-    newRow.find('select').val('');
 
     $('#item_table tbody').append(newRow);
     rowCount++; // Increment row counter
@@ -2313,8 +2283,7 @@ function reloadAccount() {
 }
 
 </script>
-
-
+<!-- Tax dropdown according to place of supply -->
 
 
 
@@ -2360,6 +2329,9 @@ function reloadAccount() {
           });
 
       });
+
+
+      
       // console.log('pos:'+place_of_supply);
       $(document).on('click', '#item2', function () {
           select = $('#item2').val();
@@ -3008,20 +2980,61 @@ function reloadAccount() {
 ///////////////////////////////get hsn & rate////////////////////////////////////////////////////
 
 
+function fetchItemData(selectedItem, row) {
+    $.ajax({
+        type: 'GET',
+        url: "{% url 'get_item_details' %}",
+        data: {
+            id: selectedItem
+        },
+        dataType: 'json',
+        success: function (response) {
+            // Update the HSN and rate fields in the current row with the fetched data
+            row.find(".hsn").val(response.hsn);
+            row.find(".rate").val(response.rate);
+        },
+        error: function () {
+            // Handle errors if the data cannot be fetched or the item doesn't exist
+            console.log('Error fetching item data.');
+            // You can display an error message to the user if needed.
+        },
+    });
+}
+
+// Add event handler for changes in item selection
 $(document).on('change', '.item_select', function () {
     var selectedItem = $(this).val();
     var row = $(this).closest('tr');
-
-    // Fetch HSN and rate
-    $.get("{% url 'get_item_details2' %}", { id: selectedItem }, function (response) {
-        // Update the HSN and rate fields in the current row with the fetched data
-        row.find(".hsn").val(response.hsn);
-        row.find(".rate").val(response.rate);
-    }).fail(function () {
-        console.log('Error fetching item data.');
-        // Handle errors if the data cannot be fetched or the item doesn't exist
-    });
+    fetchItemData(selectedItem, row);
 });
+
+
+// Add event handler for changes in item selection
+$(document).on('change', '.item_select', function () {
+  var selectedItem = $(this).val();
+  var row = $(this).closest('tr');
+  
+  $.ajax({
+    type: 'GET',
+    url: "{% url 'get_item_details' %}",
+    data: {
+      id: selectedItem
+    },
+    dataType: 'json',
+    success: function (response) {
+      // Update the HSN and rate fields in the current row with the fetched data
+      row.find(".hsn").val(response.hsn);
+      row.find(".rate").val(response.rate);
+    },
+    error: function () {
+      // Handle errors if the data cannot be fetched or the item doesn't exist
+      console.log('Error fetching item data.');
+      // You can display an error message to the user if needed.
+    },
+  });
+});
+
+
 
   </script>
   
@@ -3149,6 +3162,7 @@ $(document).on('change', '.item_select', function () {
       $('#tax_total').val(igst.toFixed(2));
   
   }
+
   
               
     });
@@ -3181,34 +3195,5 @@ $(document).on('change', '.item_select', function () {
         });
     });
   </script>
-  <script>
-    function updateBalance() {
-          var grandTotal = parseFloat($('#grandtotal').val()) || 0;
-          var advancePaid = parseFloat($('#advance').val()) || 0;
-
-          var balance = grandTotal - advancePaid;
-
-          // Display the balance amount
-          $('#balance').val(balance.toFixed(2));
-
-          // Show/hide the warning message based on the balance
-          if (advancePaid > grandTotal) {
-              $('#advancediv').show();
-          } else {
-              $('#advancediv').hide();
-          }
-      }
-
-      // Event handlers for changes in shipping and adjustment fields
-      $('#shipping, #adjustment').on('input', function () {
-          calculateGrandTotal();
-      });
-
-      // Event handler for changes in the advance amount
-      $('#advance').on('input', function () {
-          updateBalance();
-            
-      });
-</script>
   
 {% endblock %}
