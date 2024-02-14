@@ -214,54 +214,7 @@
           </div>
       </div>
       <!-------------------------- new-----------------------------------------  -->
-      <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-      <script>
-        $(document).ready(function () {
-          // Change event listener for the customer dropdown
-          $('#customer_sel').change(function () {
-            var selectedCustomer = $('#customer_sel option:selected');
-            var email = selectedCustomer.data('email');
-            var placeOfSupply = selectedCustomer.data('pos');
-            var gstTreatment = selectedCustomer.data('gst');
-            var gstin = selectedCustomer.data('gstin'); // Get the GSTIN from the data attribute
-            var billingAddress = selectedCustomer.data('billing_address');
-      
-            // Content of the placeholders
-            $('#email_input').val(email);
-            $('#pos_input').val(placeOfSupply);
-            $('#gst_input').val(gstTreatment);
-            $('#gstin_input').val(gstin); // Set the value of the GSTIN input field
-            $('#billing_address_input').val(billingAddress);
-      
-            // Show or hide fields based on selection
-            if (selectedCustomer.val() !== '') {
-              $('#email_row').show();
-              $('#pos_row').show();
-              $('#gst_row').show();
-      
-              // Conditionally show/hide the GSTIN row based on GST treatment
-              if (
-                gstTreatment.toLowerCase() === "unregistered business-not registered under gst" ||
-                gstTreatment.toLowerCase() === "overseas- persons with who you do import or exports of supplies outside india"
-              ) {
-                $('#gstin_row').hide(); // Hide the GSTIN row
-              } else {
-                $('#gstin_row').show(); // Show the GSTIN row
-              }
-      
-              $('#billing_address_row').show();
-            } else {
-              $('#email_row').hide();
-              $('#pos_row').hide();
-              $('#gst_row').hide();
-              $('#gstin_row').hide(); // Hide the GSTIN row
-              $('#billing_address_row').hide();
-            }
-          });
-        });
-      
-       
-        </script>
+     
        
         
       </div> 
