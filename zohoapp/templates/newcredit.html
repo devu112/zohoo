@@ -3308,5 +3308,71 @@ $('#shipping, #adjustment').on('input', function () {
             
       });
 </script>
+<script>
+  // Fetch the 'Creditnote Date' input field
+const creditnoteDateInput = document.getElementById('date1');
+
+// Function to update the date to the current day
+function updateCurrentDate() {
+const today = new Date().toISOString().split('T')[0];
+creditnoteDateInput.value = today;
+}
+
+// Update the date to the current day when the page loads
+updateCurrentDate();
+
+
+function getCustomerData() {
+  var customerId = $("#customer_sel").val();
+
+  // Make an AJAX request to fetch customer data
+  $.ajax({
+      url: '/customerdatas/',
+      data: {'id': customerId},
+      dataType: 'json',
+      success: function (data) {
+          // Update the fields with the fetched data
+          $("#email_input").val(data.email);
+          $("#gst_input").val(data.gsttreat);
+          $("#gstin_input").val(data.gstno);
+
+          // Update Billing Address field and show/hide the row
+          var billingAddress = data.billingAddress;
+          if (billingAddress && billingAddress.trim() !== "") {
+              $("#billing_address_input").val(billingAddress);
+              $("#billing_address_row").show();
+          } else {
+              $("#billing_address_input").val('');
+              $("#billing_address_row").hide();
+          }
+
+          // Update Place of Supply field and show/hide the dropdown
+          var placeOfSupply = data.place;
+          if (placeOfSupply && placeOfSupply.trim() !== "") {
+              $("#pos_input").val(placeOfSupply);
+              $("#pos_dropdown_container").hide();
+          } else {
+              // If placeOfSupply is empty, show the dropdown
+              $("#pos_input").val('');
+              $("#pos_dropdown_container").show();
+          }
+
+          // Show the corresponding rows
+          $("#email_row").show();
+          $("#gst_row").show();
+          $("#gstin_row").show();
+          $("#pos_row").show(); 
+      },
+      error: function () {
+          console.log("Error fetching customer data");
+      }
+  });
+}
+
+
+ 
+  </script>
+
+  
   
 {% endblock %}
