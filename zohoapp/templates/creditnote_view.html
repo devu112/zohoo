@@ -747,25 +747,18 @@ body {
                             </div>
                         </div>
                     </div>
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                           
-                            const shareByWhatsAppButton = document.getElementById("shareByWhatsApp");
-                    
-                            
-                            const whatsappShareUrl = "https://wa.me/?text=Check%20out%20this%20expense:%20[PLACEHOLDER_URL]";
-                    
-                            shareByEmailButton.addEventListener("click", function (event) {
-                                event.preventDefault();
-                                window.location.href = emailShareUrl.replace("[PLACEHOLDER_URL]", window.location.href);
+                                            <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                const shareByWhatsAppButton = document.getElementById("shareByWhatsApp");
+                                const whatsappShareUrl = "https://wa.me/?text=Check%20out%20this%20creditnote:%20[PLACEHOLDER_URL]";
+
+                                shareByWhatsAppButton.addEventListener("click", function (event) {
+                                    event.preventDefault();
+                                    window.location.href = whatsappShareUrl.replace("[PLACEHOLDER_URL]", window.location.href);
+                                });
                             });
-                    
-                            shareByWhatsAppButton.addEventListener("click", function (event) {
-                                event.preventDefault();
-                                window.location.href = whatsappShareUrl.replace("[PLACEHOLDER_URL]", window.location.href);
-                            });
-                        });
-                    </script>
+                        </script>
+
                     <div class="m-0">
                         
                     </div>
