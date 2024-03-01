@@ -261,29 +261,7 @@
       </div>
       <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   
-      <script>
-        $(document).ready(function () {
-            // Ajax call to check if the user has an invoice
-            $.ajax({
-                url: "{% url 'check_invoice' %}",
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
-                    if (data.success && data.user_has_invoice) {
-                        // User has an invoice, show the invoice number field
-                        $('#invoiceNumberContainer').show();
-                        
-                        // Set the invoice number value
-                        $('#sale_no').val(data.invoice_number);
-                    }
-                },
-                error: function () {
-                    // Handle errors more explicitly, e.g., show an error message to the user
-                    console.log("Error checking invoice");
-                }
-            });
-        });
-    </script>
+     
       <script>
         $(document).ready(function() {
           $("#credit_note").change(function() {
